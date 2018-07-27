@@ -13,11 +13,14 @@ typedef struct _PredResults {
 } PredResults;
 
 /* Given a protein in the HPElem * format, searches the 3D conformation with minimal energy.
+ * 'nCycles' is the number of cycles desired for the algorithm to run.
+ *
  * Returns a MovElem *, which is a sequence of movements of the backbone of the protein,
  *   and also the movements of the side-chain beads relative to the backbone.
+ *
  * If 'results' is not NULL, it receives additional values about the predicted
  *   protein (see the structure itself for what values are given).
  */
-MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, PredResults *results);
+MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, PredResults *results);
 
 #endif // ABC_ALG_H

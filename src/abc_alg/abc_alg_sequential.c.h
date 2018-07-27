@@ -114,7 +114,7 @@ void scout_phase(int hpSize){
 	debug_print("%s", "END scout phase.\n");
 }
 
-MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, PredResults *results){
+MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, PredResults *results){
 	HIVE_initialize();
 	FitnessCalc_initialize(0, hpChain, hpSize);
 	random_seed();
@@ -125,7 +125,7 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, PredResults *
 	for(i = 0; i < HIVE.nSols; i++)
 		HIVE_add_solution(Solution_random(hpSize), i, hpSize);
 
-	for(i = 0; i < CYCLES; i++){
+	for(i = 0; i < nCycles; i++){
 		forager_phase(hpSize);
 
 		onlooker_phase(hpSize);

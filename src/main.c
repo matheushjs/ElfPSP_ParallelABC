@@ -80,7 +80,7 @@ int main(int argc, char *argv[]){
 	clock_t beg = clock();
 
 	PredResults results;
-	MovElem * chain = ABC_predict_structure(hpChain, hpSize, &results);
+	MovElem * chain = ABC_predict_structure(hpChain, hpSize, nCycles, &results);
 
 	double time = (clock() - beg) / (double) CLOCKS_PER_SEC;
 

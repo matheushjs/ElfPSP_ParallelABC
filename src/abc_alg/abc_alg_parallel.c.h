@@ -350,7 +350,7 @@ void ring_gather(MPI_Comm ringComm, int hpSize){
 	free(gatBuf);
 }
 
-MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, PredResults *results){
+MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, PredResults *results){
 	MPI_Init(NULL, NULL);
 	int commSize, myRank;
 	MPI_Comm_size(MPI_COMM_WORLD, &commSize);
@@ -419,7 +419,7 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, PredResults *
 			HIVE_add_solution(sol, i, hpSize);
 		}
 
-		for(i = 0; i < CYCLES; i++){
+		for(i = 0; i < nCycles; i++){
 			debug_print("BEGIN PHASE %d\n", i);
 
 			parallel_forager_phase(hpSize);
@@ -431,7 +431,7 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, PredResults *
 			 */
 			parallel_scout_phase(hpSize);
 
-			const int migCycle = CYCLES * 0.1; // Migration cycle
+			const int migCycle = nCycles * 0.1; // Migration cycle
 			if( i != 0 && (i % migCycle == 0) ){
 				ring_exchange(ringComm, hpSize);
 			}
