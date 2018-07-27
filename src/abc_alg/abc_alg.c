@@ -78,26 +78,6 @@ Solution Solution_random(int hpSize){
 	return sol;
 }
 
-/* Chooses a random position in the given solution movement chain,
- *   and alter it to a random movement.
- * The returned Solution has its idle_positions set to 0.
- * The returned Solution won't have its fitness calculated.
- */
-static
-Solution Solution_perturb_single(Solution sol, int hpSize){
-	int chainSize = hpSize - 1;
-	int pos = urandom_max(chainSize);
-
-	Solution retval = Solution_copy(sol, hpSize);
-	retval.position[pos] = MovElem_random();
-
-	retval.idle_iterations = 0;
-
-	retval.fitness = FITNESS_MIN;
-
-	return retval;
-}
-
 /* Chooses a random element ELEM1 in 'perturb'.
  * Then chooses a random element ELEM2 in 'other'.
  * Takes the distance DIST between ELEM1 and ELEM2
@@ -218,34 +198,23 @@ void HIVE_increment_idle(int index){
 	HIVE.sols[index].idle_iterations++;
 }
 
+/* Causes a minor variation in the solution at given index.
+ *
+ * The Solution with index 'index' is SOL1, we take a random SOL2 and a random
+ *   spot SPOT in the Solutions' movement chain.
+ * SOL1's movement at spot SPOT is made to approach the value in SOL2's movement
+ *   at the same spot.
+ */
+static
+Solution perturb_solution(int index, int hpSize){
+	int other;
 
+	do {
+		other = urandom_max(HIVE.nSols);
+	} while(other == index);
 
-#if PERTURB_SINGLE == 1
-	/* Causes a minor variation in the solution at given index.
-	 */
-	static
-	Solution perturb_solution(int index, int hpSize){
-		return Solution_perturb_single(HIVE.sols[index], hpSize);
-	}
-#elif PERTURB_SINGLE == 0
-	/* Causes a minor variation in the solution at given index.
-	 *
-	 * The Solution with index 'index' is SOL1, we take a random SOL2 and a random
-	 *   spot SPOT in the Solutions' movement chain.
-	 * SOL1's movement at spot SPOT is made to approach the value in SOL2's movement
-	 *   at the same spot.
-	 */
-	static
-	Solution perturb_solution(int index, int hpSize){
-		int other;
-
-		do {
-			other = urandom_max(HIVE.nSols);
-		} while(other == index);
-
-		return Solution_perturb_relative(HIVE.sols[index], HIVE.sols[other], hpSize);
-	}
-#endif
+	return Solution_perturb_relative(HIVE.sols[index], HIVE.sols[other], hpSize);
+}
 
 /* The current Solution with index 'index' is SOL1.
  * Checks if 'alt' has a better fitness, and if that is so, replaces SOL1 with 'alt'.

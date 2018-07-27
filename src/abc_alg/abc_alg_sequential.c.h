@@ -119,9 +119,6 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, PredResults *
 	FitnessCalc_initialize(0, hpChain, hpSize);
 	random_seed();
 
-	#pragma message "Suppressed functions"
-	SUPPRESS_WARNING(Solution_perturb_single);
-
 	int i;
 
 	// Generate initial random solutions

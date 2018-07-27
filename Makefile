@@ -13,7 +13,7 @@ LIBS=-lm
 
 MPI_LIBS=-pthread -Wl,-rpath -Wl,/usr/lib/openmpi/lib -Wl,--enable-new-dtags -L/usr/lib/openmpi/lib -lmpi
 MPI_CFLAGS=-I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent -I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include \
-		-I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi 
+		-I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi
 
 DIFF_CONTROL=$(subst ${} ${},,$(DEFS)).$(subst ${} ${},,$(UFLAGS))
 
@@ -28,9 +28,6 @@ quadratic:
 
 parallel:
 	make $(BIN) DEFS="-DCYCLES=$(CYCLES) -DCOUNTING_QUADRATIC=0 -DABC_PARALLEL=1 $(DEFS)"
-
-perturb_single:
-	make parallel DEFS="-DPERTURB_SINGLE=1"
 
 debug:
 	make $(BIN) DEFS="-DCYCLES=$(CYCLES) -DDEBUG" UFLAGS="-pg -g"

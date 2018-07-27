@@ -391,9 +391,6 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, PredResults *
 	random_seed();
 	FitnessCalc_initialize(0, hpChain, hpSize);
 
-	#pragma message "Suppressed functions"
-	SUPPRESS_WARNING(Solution_perturb_single);
-
 	int myHiveRank, myWorldRank;
 	MPI_Comm_rank(hiveComm, &myHiveRank);
 	MPI_Comm_rank(MPI_COMM_WORLD, &myWorldRank);

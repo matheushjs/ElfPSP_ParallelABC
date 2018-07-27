@@ -23,9 +23,6 @@
 	#define OPTIMIZATION_PARALLEL 0
 #endif
 
-#ifndef PERTURB_SINGLE        // Perturb solutions isolatedly, not relative to another?
-	#define PERTURB_SINGLE 0
-#endif
 
 /*************************/
 /***  DEBUGGING        ***/
