@@ -1,4 +1,8 @@
 
+// Include common source code shared by _sequential and _parallel source files.
+#include "abc_alg_common.c.h"
+
+
 /******************************************/
 /****** OTHER PROCEDURES           ********/
 /******************************************/

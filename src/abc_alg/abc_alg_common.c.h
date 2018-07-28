@@ -5,11 +5,12 @@
 
 #include <movchain.h>
 #include <hpchain.h>
-#include "abc_alg.h"
 #include <fitness/fitness.h>
 #include <random.h>
 #include <config.h>
 #include <utils.h>
+
+#include "abc_alg.h"
 
 #define FITNESS_MIN -1E9
 
@@ -234,8 +235,4 @@ bool replace_solution(Solution alt, int index, int hpSize){
 }
 
 
-#if ABC_PARALLEL == 0
-	#include "abc_alg_sequential.c.h"
-#elif ABC_PARALLEL == 1
-	#include "abc_alg_parallel.c.h"
-#endif
+

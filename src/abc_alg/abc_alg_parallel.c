@@ -1,5 +1,10 @@
+
+// Include common source code shared by _sequential and _parallel source files.
+#include "abc_alg_common.c.h"
+
 #include <mpi/mpi.h>
 #include "elf_tree_comm.h"
+
 
 /******************************************/
 /****** OTHER PROCEDURES           ********/

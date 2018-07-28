@@ -1,5 +1,3 @@
-BIN=ParallelABC
-BINSUF?= # Suffix for the binary file
 HPSEQ=PPPPPHHPHPHPHPHPPHHPHHPHPPP
 NP=1 # Number of nodes
 
@@ -19,22 +17,22 @@ VPATH= src/
 
 
 all:
-	make seq_lin
+	#make seq_lin
 	make parallel_lin
-	make seq_quad
-	make parallel_quad
+	#make seq_quad
+	#make parallel_quad
 
-seq_lin:
-	make $(BIN) BINSUF=_seq_lin       DEFS="-DCOUNTING_QUADRATIC=0 -DABC_PARALLEL=0 $(DEFS)"
+parallel_lin: main.o int3d.o fitness.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $(addprefix  build/, $^) -o $@ $(LIBS) $(MPI_LIBS)
 
-parallel_lin:
-	make $(BIN) BINSUF=_parallel_lin  DEFS="-DCOUNTING_QUADRATIC=0 -DABC_PARALLEL=1 $(DEFS)"
+#seq_lin:
+#	make $(BIN) BINSUF=_seq_lin       DEFS="-DCOUNTING_QUADRATIC=0 -DABC_PARALLEL=0 $(DEFS)"
 
-seq_quad:
-	make $(BIN) BINSUF=_seq_quad      DEFS="-DCOUNTING_QUADRATIC=1 -DABC_PARALLEL=0 $(DEFS)"
+#seq_quad:
+#	make $(BIN) BINSUF=_seq_quad      DEFS="-DCOUNTING_QUADRATIC=1 -DABC_PARALLEL=0 $(DEFS)"
 
-parallel_quad:
-	make $(BIN) BINSUF=_parallel_quad DEFS="-DCOUNTING_QUADRATIC=1 -DABC_PARALLEL=1 $(DEFS)"
+#parallel_quad:
+#	make $(BIN) BINSUF=_parallel_quad DEFS="-DCOUNTING_QUADRATIC=1 -DABC_PARALLEL=1 $(DEFS)"
 
 
 debug:
@@ -58,9 +56,6 @@ clean_all: clean
 	rm -vf DEFS.*
 
 
-# Explicit rule for the binary
-$(BIN): main.o int3d.o fitness.o hpchain.o movchain.o mtwist.o abc_alg.o elf_tree_comm.o
-	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $(addprefix  build/, $^) -o $(BIN)$(BINSUF) $(LIBS) $(MPI_LIBS)
 
 
 # Explicit non-MPI object rules (WHEN ADDING NEW, MUST ADD TO $(BIN) TARGET TOO)
@@ -71,9 +66,10 @@ fitness.o:  fitness/fitness.c  fitness/fitness_collisions_linear.c.h  fitness/fi
 hpchain.o:  hpchain.c  hpchain.h  Makefile
 movchain.o: movchain.c  movchain.h  Makefile
 mtwist.o:   mtwist/mtwist.c  mtwist/mtwist.h  Makefile
+abc_alg_sequential.o: abc_alg/abc_alg_sequential.c abc_alg/abc_alg.h  abc_alg/abc_alg_common.c.h
 
 # Explicit MPI object rules
-abc_alg.o: abc_alg/abc_alg.c  abc_alg/abc_alg.h  abc_alg/abc_alg_parallel.c.h  abc_alg/abc_alg_sequential.c.h
+abc_alg_parallel.o: abc_alg/abc_alg_parallel.c  abc_alg/abc_alg.h  abc_alg/abc_alg_common.c.h
 	gcc -c $(DEFS) $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) -o "./build/$@" "$<" $(LIBS) $(MPI_LIBS)
 
 elf_tree_comm.o: abc_alg/elf_tree_comm.c  abc_alg/elf_tree_comm.h

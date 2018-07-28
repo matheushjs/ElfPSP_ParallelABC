@@ -19,10 +19,6 @@
 	#define COUNTING_QUADRATIC 0
 #endif
 
-#ifndef OPTIMIZATION_PARALLEL // Use parallel procedures for the ABC algorithm?
-	#define OPTIMIZATION_PARALLEL 0
-#endif
-
 
 /*************************/
 /***  DEBUGGING        ***/
