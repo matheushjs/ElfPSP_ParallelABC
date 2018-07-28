@@ -1,33 +1,5 @@
-
-#include <int3d.h>
-#include <hpchain.h>
-#include <utils.h>
-#include <movchain.h>
-#include <fitness/fitness.h>
-#include <config.h>
-
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define COORD3D(V, AXIS) COORD(V.x, V.y, V.z, AXIS)
-#define COORD(X, Y, Z, AXIS) ( (Z+AXIS/2) * (AXIS*AXIS) + (Y+AXIS/2) * (AXIS) + (X+AXIS/2))
-#define AXIS_SIZE(HPSIZE) (HPSIZE+3)*2
-
-/* Include FitnessCalc structures and routines, as well as some math structures */
-#include "fitness_structures.c.h"
-
-/* Include gyration calculation procedures */
-#include "fitness_gyration.c.h"
-
-/* Include collision/contact counting routines */
-#if COUNTING_QUADRATIC == 0
-	#include "fitness_collisions_linear.c.h"
-	#include "fitness_contacts_linear.c.h"
-#elif COUNTING_QUADRATIC == 1
-	#include "fitness_collisions_quadratic.c.h"
-	#include "fitness_contacts_quadratic.c.h"
-#endif
+#ifndef _FITNESS_RUN_C_H_
+#define _FITNESS_RUN_C_H_
 
 double FitnessCalc_run(int threadId, const int3d *coordsBB, const int3d *coordsSC){
 	int i;
@@ -175,3 +147,5 @@ void FitnessCalc_measures(int threadId, const MovElem *chain, int *Hcontacts_p, 
 	free(coordsBB);
 	free(coordsSC);
 }
+
+#endif

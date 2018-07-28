@@ -17,22 +17,22 @@ VPATH= src/
 
 
 all:
-	#make seq_lin
 	make parallel_lin
-	#make seq_quad
-	#make parallel_quad
+	make parallel_quad
+	make seq_lin
+	make seq_quad
 
-parallel_lin: main.o int3d.o fitness.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+parallel_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $(addprefix  build/, $^) -o $@ $(LIBS) $(MPI_LIBS)
 
-#seq_lin:
-#	make $(BIN) BINSUF=_seq_lin       DEFS="-DCOUNTING_QUADRATIC=0 -DABC_PARALLEL=0 $(DEFS)"
+parallel_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $(addprefix  build/, $^) -o $@ $(LIBS) $(MPI_LIBS)
 
-#seq_quad:
-#	make $(BIN) BINSUF=_seq_quad      DEFS="-DCOUNTING_QUADRATIC=1 -DABC_PARALLEL=0 $(DEFS)"
+seq_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o elf_tree_comm.o
+	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $(addprefix  build/, $^) -o $@ $(LIBS) $(MPI_LIBS)
 
-#parallel_quad:
-#	make $(BIN) BINSUF=_parallel_quad DEFS="-DCOUNTING_QUADRATIC=1 -DABC_PARALLEL=1 $(DEFS)"
+seq_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o elf_tree_comm.o
+	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $(addprefix  build/, $^) -o $@ $(LIBS) $(MPI_LIBS)
 
 
 debug:
@@ -61,12 +61,14 @@ clean_all: clean
 # Explicit non-MPI object rules (WHEN ADDING NEW, MUST ADD TO $(BIN) TARGET TOO)
 main.o:     main.c  Makefile
 int3d.o:    int3d.c  int3d.h  Makefile
-fitness.o:  fitness/fitness.c  fitness/fitness_collisions_linear.c.h  fitness/fitness_collisions_quadratic.c.h  fitness/fitness_contacts_linear.c.h  \
-            fitness/fitness_contacts_quadratic.c.h  fitness/fitness_gyration.c.h  fitness/fitness.h  fitness/fitness_structures.c.h Makefile
+fitness_quadratic.o: fitness/fitness_quadratic.c fitness/fitness_run.c.h fitness/fitness_gyration.c.h  \
+                     fitness/fitness.h  fitness/fitness_structures.c.h Makefile
+fitness_linear.o: fitness/fitness_linear.c fitness/fitness_run.c.h fitness/fitness_gyration.c.h  \
+                     fitness/fitness.h  fitness/fitness_structures.c.h Makefile
 hpchain.o:  hpchain.c  hpchain.h  Makefile
 movchain.o: movchain.c  movchain.h  Makefile
 mtwist.o:   mtwist/mtwist.c  mtwist/mtwist.h  Makefile
-abc_alg_sequential.o: abc_alg/abc_alg_sequential.c abc_alg/abc_alg.h  abc_alg/abc_alg_common.c.h
+abc_alg_sequential.o: abc_alg/abc_alg_sequential.c abc_alg/abc_alg.h  abc_alg/abc_alg_common.c.h Makefile
 
 # Explicit MPI object rules
 abc_alg_parallel.o: abc_alg/abc_alg_parallel.c  abc_alg/abc_alg.h  abc_alg/abc_alg_common.c.h
@@ -76,5 +78,5 @@ elf_tree_comm.o: abc_alg/elf_tree_comm.c  abc_alg/elf_tree_comm.h
 	gcc -c $(DEFS) $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) -o "./build/$@" "$<" $(LIBS) $(MPI_LIBS)
 
 # Implicit rule for building objects
-%.o: 
+%.o:
 	gcc -c $(DEFS) $(CFLAGS) $(UFLAGS) -o "./build/$@" "$<" $(LIBS)

@@ -1,25 +1,62 @@
-#ifndef FITNESS_CONTACTS_LINEAR_C_H
-#define FITNESS_CONTACTS_LINEAR_C_H
-
-/* IMPORTANT NOTE
- * The signature of all functions in "fitness_contacts_linear.c.h" and
- *   "fitness_contacts_quadratic.c.h" match each other.
- */
 
 #include <int3d.h>
 #include <hpchain.h>
 #include <utils.h>
 #include <movchain.h>
 #include <fitness/fitness.h>
+#include <config.h>
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
+#define COORD3D(V, AXIS) COORD(V.x, V.y, V.z, AXIS)
+#define COORD(X, Y, Z, AXIS) ( (Z+AXIS/2) * (AXIS*AXIS) + (Y+AXIS/2) * (AXIS) + (X+AXIS/2))
+
 /* Include FitnessCalc structures and routines, as well as some math structures */
-/* We might need to access the FIT_BUNDLE array */
 #include "fitness_structures.c.h"
 
+/* Include gyration calculation procedures */
+#include "fitness_gyration.c.h"
+
+/* Counts the number of conflicts among the protein beads.
+ * 'space3d' is 3D lattice whose axis has size axisSize (positive + negative sides of the axis).
+ */
+static
+int count_collisions(int threadId, const int3d *coordsBB, const int3d *coordsSC, int hpSize){
+	int i, collisions;
+
+	// Get space3d associated with that thread
+	char *space3d = FIT_BUNDLE[threadId].space3d;
+	int axisSize = FIT_BUNDLE[threadId].axisSize;
+	
+	collisions = 0;
+
+	// Reset space
+	for(i = 0; i < hpSize; i++){
+		int idx = COORD3D(coordsSC[i], axisSize);
+		space3d[idx] = 0;
+		idx = COORD3D(coordsBB[i], axisSize);
+		space3d[idx] = 0;
+	}
+
+	// Place beads in the space (actually calculate the collisions at the same time)
+	for(i = 0; i < hpSize; i++){
+		int idx = COORD3D(coordsSC[i], axisSize);
+		if(space3d[idx]){
+			collisions++;
+		}
+		space3d[idx]++;
+
+		idx = COORD3D(coordsBB[i], axisSize);
+		if(space3d[idx]){
+			collisions++;
+		}
+		space3d[idx]++;
+	}
+
+	return collisions;
+}
 
 /* Counts the number of H-H, P-P and H-P contacts in a O(n) method.
  *
@@ -257,5 +294,7 @@ IPair count_contacts_bs(int threadId, const int3d *coordsBB, const int3d *coords
 	return res;
 }
 
-#endif // FITNESS_CONTACTS_LINEAR_C_H
 
+
+/* Include FitnessCalc_run and FitnessCalc_measures */
+#include "fitness_run.c.h"
