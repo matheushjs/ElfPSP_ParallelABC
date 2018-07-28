@@ -1,3 +1,6 @@
+#ifndef _ABC_ALG_COMMON_C_H_
+#define _ABC_ALG_COMMON_C_H_
+
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -235,4 +238,4 @@ bool replace_solution(Solution alt, int index, int hpSize){
 }
 
 
-
+#endif
