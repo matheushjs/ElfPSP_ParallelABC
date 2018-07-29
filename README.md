@@ -169,3 +169,14 @@ Which should show a GUI for visualizing and interacting with the protein structu
 
 Configuring Internal Parameters
 ---
+
+The program has a number of internal parameters (macros) that can be configured upon compilation. All the parameters can be checked in the file `src/config.h`.
+
+For example, the default number of bees in the colony is 250, but say you want to change it to 1000. You can do it by running:
+
+```
+make clean
+make DEFS="-D COLONY_SIZE=1000"
+```
+
+which will pass the "-D COLONY_SIZE=1000" flag to `gcc`; the "-D" option defines macros on command line. Note that `make clean` should be called before, or Makefile might claim that "all files are up to date" and won't build anything at all.
