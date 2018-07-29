@@ -9,7 +9,22 @@ Implementations of a Protein Structure Prediction (PSP) program, using an Artifi
 Index
 ---
 
+- [Overview](#overview)
 
+- [Proposal for Complexity Reduction](#proposal)
+
+- [Requirements](#requirements)
+
+- [Compiling](#compiling)
+
+- [Usage](#usage)
+
+- [Output Format and Visualization](#output)
+
+- [Configuring Internal Parameters](#configuring)
+
+
+<a name="overview"></a>
 Overview
 ---
 
@@ -30,6 +45,7 @@ I've been investigating their proposal due to my research project, and during an
 - Parallel Linear: Hybrid Hierarchical version of the PSP algorithm, using the linear-complexity procedures I devised.
 
 
+<a name="proposal"></a>
 Proposal for Complexity Reduction
 ---
 
@@ -93,17 +109,20 @@ for bead in vector:
 Each of the steps is *O(n)* so the whole procedure is also *O(n)*.
 
 
+<a name="requirements"></a>
 Requirements
 ---
 
 You must be able to execute `gcc`, `mpicc` and `mpirun` from the command line.
 
 
+<a name="compiling"></a>
 Compiling
 ---
 
 If you run `make`, it will make all the 4 program versions. The versions are called `parallel_lin`, `parallel_quad`, `seq_lin` and `seq_quad`, so you can make them separately, for example `make seq_lin`.
 
+<a name="usage"></a>
 Usage
 ---
 
@@ -138,6 +157,7 @@ BBGyration: 1.775057
 Time: 4.688627
 ```
 
+<a name="output"></a>
 Output Format and Visualization
 ---
 
@@ -167,6 +187,7 @@ Which should show a GUI for visualizing and interacting with the protein structu
 
 ![](img/protein.png)
 
+<a name="configuring"></a>
 Configuring Internal Parameters
 ---
 
