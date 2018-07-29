@@ -1,10 +1,6 @@
-HPSEQ=PPPPPHHPHPHPHPHPPHHPHHPHPPP
-NP=1 # Number of nodes
-
 # User defines
 DEFS?= # e.g. -DN_HIVES=2
 UFLAGS?= # e.g. -pg -g
-
 
 CFLAGS=-Wall -Wpedantic -O3 -I src
 LIBS=-lm
@@ -17,10 +13,10 @@ VPATH= src/
 
 
 all:
-	make parallel_lin
-	make parallel_quad
-	make seq_lin
-	make seq_quad
+	make parallel_lin  UFLAGS="$(UFLAGS)" DEFS="$(DEFS)"
+	make parallel_quad UFLAGS="$(UFLAGS)" DEFS="$(DEFS)"
+	make seq_lin       UFLAGS="$(UFLAGS)" DEFS="$(DEFS)"
+	make seq_quad      UFLAGS="$(UFLAGS)" DEFS="$(DEFS)"
 
 parallel_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
@@ -34,17 +30,6 @@ seq_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_s
 seq_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o
 	gcc $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-
-debug:
-	make $(BIN) DEFS="-DDEBUG" UFLAGS="-pg -g"
-
-run:
-	# 273d.10 from the old article from the authors
-	# ./$(BIN) $(HPSEQ)
-	mpirun -n $(NP) ./$(BIN) $(HPSEQ)
-
-run_sequential:
-	./$(BIN) $(HPSEQ)
 
 clean:
 	find -name "*~" -type f -exec rm -vf '{}' \;
