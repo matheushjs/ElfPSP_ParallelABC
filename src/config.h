@@ -11,14 +11,6 @@
  *
  */
 
-/*************************/
-/*** VERSION SWITCHING ***/
-/*************************/
-
-#ifndef COUNTING_QUADRATIC    // Use quadratic procedures for counting contacts/collisions?
-	#define COUNTING_QUADRATIC 0
-#endif
-
 
 /*************************/
 /***  DEBUGGING        ***/
@@ -73,9 +65,6 @@
 #endif
 #ifndef FORAGER_RATIO
 	#define FORAGER_RATIO 0.5 // Proportion of foragers in the colony
-#endif
-#ifndef CYCLES
-	#define CYCLES 600 // Number of forager/onlooker/scout iterations
 #endif
 #ifndef IDLE_LIMIT
 	#define IDLE_LIMIT 100 // Maximum number of iterations through which the solution did not improve

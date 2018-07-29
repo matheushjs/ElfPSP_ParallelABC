@@ -66,7 +66,7 @@ int main(int argc, char *argv[]){
 
 	HPElem *hpChain = argv[1];
 	int     hpSize  = strlen(hpChain);
-	int   nCycles  = argc >= 3 ? atoi(argv[2]) : CYCLES;
+	int   nCycles  = argc >= 3 ? atoi(argv[2]) : 600;
 	char *outFile  = argc >= 4 ? argv[3]       : "output.txt";
 
 	// Validate HP Chain
