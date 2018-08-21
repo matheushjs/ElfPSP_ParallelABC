@@ -128,6 +128,8 @@ make parallel_lin
 make parallel_quad
 ```
 
+Compiling generates a lot of crumblesome files, which can be cleaned with `make clean`.
+
 <a name="usage"></a>
 Usage
 ---
