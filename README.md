@@ -113,14 +113,20 @@ Each of the steps is *O(n)* so the whole procedure is also *O(n)*.
 Requirements
 ---
 
-You must be able to execute `gcc`, `mpicc` and `mpirun` from the command line.
+For compiling all versions, you must be able to execute `gcc`, `mpicc` and `mpirun` from the command line. You don't need MPI if you just want to compile the versions `seq_lin` or `seq_quad`.
 
 
 <a name="compiling"></a>
 Compiling
 ---
 
-If you run `make`, it will make all the 4 program versions. The versions are called `parallel_lin`, `parallel_quad`, `seq_lin` and `seq_quad`, so you can make them separately, for example `make seq_lin`.
+If you run `make`, it will make all the 4 program versions. The versions are called `parallel_lin`, `parallel_quad`, `seq_lin` and `seq_quad`, so you can make them separately with the commands below.
+```makefile
+make seq_lin
+make seq_quad
+make parallel_lin
+make parallel_quad
+```
 
 <a name="usage"></a>
 Usage
