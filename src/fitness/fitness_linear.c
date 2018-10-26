@@ -11,13 +11,74 @@
 #include <string.h>
 
 #define COORD3D(V, AXIS) COORD(V.x, V.y, V.z, AXIS)
-#define COORD(X, Y, Z, AXIS) ( (Z+AXIS/2) * (AXIS*AXIS) + (Y+AXIS/2) * (AXIS) + (X+AXIS/2))
+#define COORD(X, Y, Z, AXIS) ( (Z+AXIS/2) * (AXIS*(long int)AXIS) + (Y+AXIS/2) * ((long int)AXIS) + (X+AXIS/2))
 
 /* Include FitnessCalc structures and routines, as well as some math structures */
 #include "fitness_structures.c.h"
 
 /* Include gyration calculation procedures */
 #include "fitness_gyration.c.h"
+
+#define MAX_MEMORY 4E16  // Max total size of memory allocated
+static long int MEM_USED = 0;
+
+void FitnessCalc_initialize(int threadId, const HPElem * hpChain, int hpSize){
+	if(threadId >= MAX_POINTERS){
+		error_print("%s", "Invallid index given.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if(FIT_BUNDLE[threadId].space3d != NULL){
+		error_print("%s", "Double initialization.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	FIT_BUNDLE[threadId].hpChain = hpChain;
+	FIT_BUNDLE[threadId].hpSize = hpSize;
+
+	int axisSize = (hpSize+3)*2;
+	long int spaceSize = axisSize * axisSize * (long int) axisSize;
+
+	/*
+	 * RACE CONDITION HERE
+	 */
+	MEM_USED += spaceSize;
+
+	// Failsafe for memory usage
+	if(MEM_USED > MAX_MEMORY){
+		error_print("Will not allocate more than %g memory.\n", (double) MAX_MEMORY);
+		exit(EXIT_FAILURE);
+	}
+
+	FIT_BUNDLE[threadId].axisSize = axisSize;
+	FIT_BUNDLE[threadId].space3d = malloc(spaceSize * sizeof(char));
+	FIT_BUNDLE[threadId].maxGyration = calc_max_gyration(hpChain, hpSize);
+
+	debug_print("Space allocated: %lf GiB\n", spaceSize * sizeof(char) / 1024.0 / 1024.0 / 1024.0);
+}
+
+void FitnessCalc_cleanup(int threadId){
+	// No checks will be done
+	free(FIT_BUNDLE[threadId].space3d);
+	FIT_BUNDLE[threadId].space3d = NULL;
+
+	int axisSize = FIT_BUNDLE[threadId].axisSize;
+	MEM_USED -= axisSize * axisSize * (long int) axisSize;
+}
+
+/* Returns the FitnessCalc with index 'threadId'
+ */
+static inline
+FitnessCalc FitnessCalc_get(int threadId){
+	if(FIT_BUNDLE[threadId].space3d == NULL){
+		error_print("%s", "FitnessCalc must be initialized.\n");
+		exit(EXIT_FAILURE);
+	}
+	return FIT_BUNDLE[threadId];
+}
+
+
+
 
 /* Counts the number of conflicts among the protein beads.
  * 'space3d' is 3D lattice whose axis has size axisSize (positive + negative sides of the axis).
@@ -34,7 +95,7 @@ int count_collisions(int threadId, const int3d *coordsBB, const int3d *coordsSC,
 
 	// Reset space
 	for(i = 0; i < hpSize; i++){
-		int idx = COORD3D(coordsSC[i], axisSize);
+		long int idx = COORD3D(coordsSC[i], axisSize);
 		space3d[idx] = 0;
 		idx = COORD3D(coordsBB[i], axisSize);
 		space3d[idx] = 0;
@@ -42,7 +103,7 @@ int count_collisions(int threadId, const int3d *coordsBB, const int3d *coordsSC,
 
 	// Place beads in the space (actually calculate the collisions at the same time)
 	for(i = 0; i < hpSize; i++){
-		int idx = COORD3D(coordsSC[i], axisSize);
+		long int idx = COORD3D(coordsSC[i], axisSize);
 		if(space3d[idx]){
 			collisions++;
 		}

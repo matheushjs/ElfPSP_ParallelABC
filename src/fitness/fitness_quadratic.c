@@ -16,6 +16,31 @@
 /* Include gyration calculation procedures */
 #include "fitness_gyration.c.h"
 
+void FitnessCalc_initialize(int threadId, const HPElem * hpChain, int hpSize){
+	if(threadId >= MAX_POINTERS){
+		error_print("%s", "Invallid index given.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	FIT_BUNDLE[threadId].hpChain = hpChain;
+	FIT_BUNDLE[threadId].hpSize = hpSize;
+	FIT_BUNDLE[threadId].maxGyration = calc_max_gyration(hpChain, hpSize);
+}
+
+void FitnessCalc_cleanup(int threadId){
+	return;
+}
+
+/* Returns the FitnessCalc with index 'threadId'
+ */
+static inline
+FitnessCalc FitnessCalc_get(int threadId){
+	return FIT_BUNDLE[threadId];
+}
+
+
+
+
 /* Counts the number of conflicts among the protein beads.
  * 'hpSize' should be the number of coordinates in each coordinate vector.
  */
