@@ -12,7 +12,7 @@ MPI_CFLAGS=-I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libeve
 VPATH= src/
 
 
-all: parallel_lin parallel_quad seq_lin seq_quad
+all: parallel_lin parallel_quad parallel_threads seq_lin seq_quad seq_threads
 	@echo -n
 
 parallel_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
@@ -21,11 +21,17 @@ parallel_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_
 parallel_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
+parallel_threads: main.o int3d.o fitness_threads.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+	gcc -fopenmp $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
+
 seq_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o
 	gcc $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
 seq_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o
 	gcc $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
+
+seq_threads: main.o int3d.o fitness_threads.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o
+	gcc -fopenmp $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
 
 clean:
@@ -48,6 +54,11 @@ hpchain.o:            hpchain.c  hpchain.h  Makefile
 movchain.o:           movchain.c  movchain.h  Makefile
 mtwist.o:             mtwist/mtwist.c  mtwist/mtwist.h  Makefile
 abc_alg_sequential.o: abc_alg/abc_alg_sequential.c abc_alg/abc_alg.h  abc_alg/abc_alg_common.c.h Makefile
+
+# Explicit OpenMP object rules
+fitness_threads.o: fitness/fitness_threads.c fitness/fitness_run.c.h fitness/fitness_gyration.c.h  \
+                   fitness/fitness.h fitness/fitness_private.h Makefile
+	gcc -c $(DEFS) $(CFLAGS) -fopenmp $(UFLAGS) -o "$@" "$<" $(LIBS)
 
 # Explicit MPI object rules
 abc_alg_parallel.o: abc_alg/abc_alg_parallel.c  abc_alg/abc_alg.h  abc_alg/abc_alg_common.c.h
