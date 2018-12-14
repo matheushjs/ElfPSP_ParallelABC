@@ -11,9 +11,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Include FitnessCalc structures and routines, as well as some math structures */
-#include "fitness_structures.c.h"
+#include "fitness_private.h"
 
+static
+double dsquare(double a){
+	return a * a;
+}
 
 /* coords - the coordinates for the beads
  * size   - the number of beads

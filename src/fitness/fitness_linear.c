@@ -10,17 +10,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "fitness_private.h"
+
+
 #define COORD3D(V, AXIS) COORD(V.x, V.y, V.z, AXIS)
 #define COORD(X, Y, Z, AXIS) ( (Z+AXIS/2) * (AXIS*(long int)AXIS) + (Y+AXIS/2) * ((long int)AXIS) + (X+AXIS/2))
-
-/* Include FitnessCalc structures and routines, as well as some math structures */
-#include "fitness_structures.c.h"
 
 /* Include gyration calculation procedures */
 #include "fitness_gyration.c.h"
 
 #define MAX_MEMORY 4E16  // Max total size of memory allocated
 static long int MEM_USED = 0;
+static FitnessCalc FIT_BUNDLE[MAX_POINTERS] = { {0, 0, NULL, 0, 0} };
 
 void FitnessCalc_initialize(int threadId, const HPElem * hpChain, int hpSize){
 	if(threadId >= MAX_POINTERS){

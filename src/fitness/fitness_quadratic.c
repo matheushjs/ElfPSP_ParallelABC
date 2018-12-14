@@ -10,11 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Include FitnessCalc structures and routines, as well as some math structures */
-#include "fitness_structures.c.h"
+#include "fitness_private.h"
 
 /* Include gyration calculation procedures */
 #include "fitness_gyration.c.h"
+
+static FitnessCalc FIT_BUNDLE[MAX_POINTERS] = { {0, 0, NULL, 0, 0} };
 
 void FitnessCalc_initialize(int threadId, const HPElem * hpChain, int hpSize){
 	if(threadId >= MAX_POINTERS){
