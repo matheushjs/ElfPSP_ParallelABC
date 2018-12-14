@@ -41,197 +41,104 @@ FitnessCalc FitnessCalc_get(int threadId){
 
 
 
-
 /* Counts the number of conflicts among the protein beads.
- * 'hpSize' should be the number of coordinates in each coordinate vector.
  */
 static
-int count_collisions(int threadId, const int3d *coordsBB, const int3d *coordsSC, int hpSize){
-	// The number of collisions is the number of beads in the same 3D point minus 1.
-
+int count_collisions(int threadId, const int3d *beads, int nBeads){
 	int i, j;
 	int collisions = 0;
 
-	for(i = 0; i < hpSize; i++){
-		// for the i-th backbone beads, compare it to the following BB beads,
-		//   and then with all the SC beads
-		int count = 0;
-		int3d bead = coordsBB[i];
+	for(i = 0; i < nBeads; i++){
+		int3d bead = beads[i];
 
 		// Check following backbone beads
-		for(j = i+1; j < hpSize; j++){
-			if(int3d_equal(bead, coordsBB[j]))
-				count++;
+		for(j = i+1; j < nBeads; j++){
+			if(int3d_equal(bead, beads[j]))
+				collisions++;
 		}
-
-		// Check all SC beads
-		for(j = 0; j < hpSize; j++){
-			if(int3d_equal(bead, coordsSC[j]))
-				count++;
-		}
-
-		// Say the current bead has 'count' == 2
-		// That means this bead collides with 2 more
-		// Which means the final 'collisions' should be incremented by 2
-		//
-		// This bead will increment 'collisions' by 1
-		// When the next colliding bead is analyzed, its 'count' will be 1, incrementing 'collisions' once again
-		// The final 'collisions' will be incremented by 2, as desired.
-		if(count >= 1)
-			collisions++;
-	}
-
-	for(i = 0; i < hpSize-1; i++){
-		// Now for each i-th side chain bead, compare it to the following SC beads
-		int count = 0;
-		int3d bead = coordsSC[i];
-
-		for(j = i+1; j < hpSize; j++){
-			if(int3d_equal(bead, coordsSC[j]))
-				count++;
-		}
-
-		if(count >= 1)
-			collisions++;
 	}
 
 	return collisions;
 }
 
-/* Counts the number of H-H, P-P and H-P contacts in a O(n^2) method.
- * For each bead, see if it has a contact with any of the following beads.
- *
- * Returns a triple where:
- *   result.first is the number of H-H contacts
- *   result.second is the number of P-P contacts
- *   result.triple is the number of H-P contacts
- *
- * Depending on the configuration of EPS_PP, EPS_HH, EPS_HP macros, the number of the
- *   respective contacts is not calculated and is always returned as 0.
+/* Counts the number of contacts among the protein beads.
  */
 static
-ITriple count_contacts_ss(int threadId, const int3d *coordsSC, const HPElem * hpChain, int hpSize){
+int count_contacts(int threadId, const int3d *beads, int nBeads){
 	int i, j;
+	int contacts = 0;
 
-	int HH = 0;
-	int PP = 0;
-	int HP = 0;
+	for(i = 0; i < nBeads; i++){
+		int3d bead = beads[i];
 
-	// For each bead
-	for(i = 0; i < hpSize-1; i++){
-		// Check all following beads for contacts
-		for(j = i+1; j < hpSize; j++){
-			int3d a = coordsSC[i];
-			int3d b = coordsSC[j];
-			int isAdjacent = int3d_isDist1(a, b);
-
-#if EPS_HH != 0
-			if(hpChain[i] == 'H' && hpChain[j] == 'H' && isAdjacent){
-				HH += 1;
-			}
-#endif // EPS_HH != 0
-
-#if EPS_HH != 0 && EPS_PP != 0
-			else
-#endif // EPS_HH != 0 && EPS_PP != 0
-
-#if EPS_PP != 0
-			if(hpChain[i] == 'P' && hpChain[j] == 'P' && isAdjacent){
-				PP += 1;
-			}
-#endif // EPS_PP != 0
-
-#if (EPS_HH != 0 || EPS_PP != 0) && EPS_HP != 0
-			else
-#endif // (EPS_HH != 0 || EPS_PP != 0) && EPS_HP != 0
-
-#if EPS_HP != 0
-			if(   (hpChain[i] == 'H' && hpChain[j] == 'P')
-			||    (hpChain[i] == 'P' && hpChain[j] == 'H') ){
-				if(isAdjacent) HP += 1;
-			}
-#endif // EPS_HP != 0
+		// Check following backbone beads
+		for(j = i+1; j < nBeads; j++){
+			if(int3d_isDist1(bead, beads[j]))
+				contacts++;
 		}
 	}
 
-	ITriple res = { HH, PP, HP };
-	return res;
+	return contacts;
 }
 
+BeadMeasures proteinMeasures(int threadId, const int3d *BBbeads, const int3d *SCbeads, const HPElem *hpChain, int hpSize){
+	int i;
 
-/* Counts the number of Backbone-Backbone contacts in a O(n^2) method.
- * For each bead, see if it has a contact with any of the following beads.
- */
-static
-int count_contacts_bb(int threadId, const int3d *coordsBB, int hpSize){
-	int i, j;
+	// Create vectors with desired coordinates of beads
+	int3d *coordsAll = malloc(sizeof(int3d) * hpSize * 2);
+	int    sizeAll = 0;
+	int3d *coordsBB  = malloc(sizeof(int3d) * hpSize);
+	int    sizeBB  = 0;
+	int3d *coordsHB  = malloc(sizeof(int3d) * hpSize * 2);
+	int    sizeHB  = 0;
+	int3d *coordsPB  = malloc(sizeof(int3d) * hpSize * 2);
+	int    sizePB  = 0;
+	int3d *coordsHH  = malloc(sizeof(int3d) * hpSize);
+	int    sizeHH  = 0;
+	int3d *coordsHP  = malloc(sizeof(int3d) * hpSize);
+	int    sizeHP  = 0;
+	int3d *coordsPP  = malloc(sizeof(int3d) * hpSize);
+	int    sizePP  = 0;
 
-	int count = 0;
-
-	for(i = 0; i < hpSize-1; i++){
-		for(j = i+2; j < hpSize; j++){ // j = i+2 so that we don't count neighbor contacts
-			int3d a = coordsBB[i];
-			int3d b = coordsBB[j];
-			if(int3d_isDist1(a, b)){
-				count += 1;
-			}
-		}
-	}
-
-	return count;
-}
-
-/* Counts the number of B-H and B-P contacts in a O(n^2) method
- * For each backbone bead, check all the side-chain beads
- *
- * Returns a pair where:
- *		pair.first: number of B-H contacts
- *      pair.second: number of B-P contacts
- *
- * Depending on the macros EPS_BH and EPS_BP, no calculations are done and
- *   the number of contacts is returned as 0.
- */
-static
-IPair count_contacts_bs(int threadId, const int3d *coordsBB, const int3d *coordsSC, const HPElem * hpChain, int hpSize){
-	int i, j;
-
-	int BH = 0;
-	int BP = 0;
-
-	// For each backbone bead
 	for(i = 0; i < hpSize; i++){
-		// For each sidechain bead
-		for(j = 0; j < hpSize; j++){
-			// Skip the sidechain in the same aminoacid
-			if(j == i) continue;
+		coordsAll[sizeAll++] = BBbeads[i];
+		coordsBB[sizeBB++]   = BBbeads[i];
+		coordsHB[sizeHB++]   = BBbeads[i];
+		coordsPB[sizePB++]   = BBbeads[i];
+	}
 
-			int3d bb = coordsBB[i];
-			int3d sc = coordsSC[j];
-			int isAdjacent = int3d_isDist1(bb, sc);
-
-#if EPS_HB != 0
-			if(isAdjacent && hpChain[j] == 'H'){
-				BH += 1;
-			}
-#endif // EPS_HB != 0
-
-#if EPS_HP != 0 && EPS_HB != 0
-			else
-#endif // EPS_HP != 0 && EPS_HB != 0
-
-#if EPS_HP != 0
-			if(isAdjacent && hpChain[j] == 'P'){
-				BP += 1;
-			}
-#endif // EPS_HP != 0
+	for(i = 0; i < hpSize; i++){
+		coordsAll[sizeAll++] = SCbeads[i];
+		coordsHP[sizeHP++]  = SCbeads[i];
+		if(hpChain[i] == 'H'){
+			coordsHH[sizeHH++] = SCbeads[i];
+			coordsHB[sizeHB++] = SCbeads[i];
+		} else {
+			coordsPP[sizePP++] = SCbeads[i];
+			coordsPB[sizePB++] = SCbeads[i];
 		}
 	}
 
-	IPair res = { BH, BP };
-	return res;
+	BeadMeasures retval;
+
+	retval.hh = count_contacts(threadId, coordsHH, sizeHH);
+	retval.pp = count_contacts(threadId, coordsPP, sizePP);
+	retval.hp = count_contacts(threadId, coordsHP, sizeHP) - retval.hh - retval.pp; // HP = all - HH - PP
+	retval.bb = count_contacts(threadId, coordsBB, sizeBB);
+	retval.hb = count_contacts(threadId, coordsHB, sizeHB) - retval.hh - retval.bb; // HB = all - HH - BB
+	retval.pb = count_contacts(threadId, coordsPB, sizePB) - retval.pp - retval.bb; // PB = all - PP - BB
+	retval.collisions = count_collisions(threadId, coordsAll, sizeAll);
+
+	free(coordsAll);
+	free(coordsBB);
+	free(coordsHB);
+	free(coordsPB);
+	free(coordsHH);
+	free(coordsHP);
+	free(coordsPP);
+
+	return retval;
 }
-
-
 
 /* Include FitnessCalc_run and FitnessCalc_measures */
 #include "fitness_run.c.h"

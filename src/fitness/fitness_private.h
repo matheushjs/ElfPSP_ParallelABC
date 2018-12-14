@@ -44,4 +44,9 @@ typedef struct {
 	int third;
 } ITriple;
 
+typedef struct {
+	int hh, pp, hp, hb, pb, bb;
+	int collisions;
+} BeadMeasures;
+
 #endif

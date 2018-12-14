@@ -8,40 +8,19 @@ double FitnessCalc_run(int threadId, const int3d *coordsBB, const int3d *coordsS
 	// H is the energy related to different kinds of contacts among side-chain and backbone beads.
 	double H = 0; // Free energy of the protein
 
-	struct Calculations {
-		ITriple ss_contacts; // Order: HH, PP, HP
-		IPair   bs_contacts; // Order: HB, PB
-		int     bb_contacts;
-		int     collisions;
-	} calc;
+	BeadMeasures measures = proteinMeasures(threadId, coordsBB, coordsSC, fitCalc.hpChain, fitCalc.hpSize);
 
-	calc.ss_contacts = count_contacts_ss(threadId, coordsSC, fitCalc.hpChain, fitCalc.hpSize);
-	calc.bs_contacts = count_contacts_bs(threadId, coordsBB, coordsSC, fitCalc.hpChain, fitCalc.hpSize);
-	calc.bb_contacts = count_contacts_bb(threadId, coordsBB, fitCalc.hpSize);
-	calc.collisions  = count_collisions(threadId, coordsBB, coordsSC, fitCalc.hpSize);
-
-#if EPS_HH != 0
-	H += EPS_HH * calc.ss_contacts.first;
-#endif
-#if EPS_PP != 0
-	H += EPS_PP * calc.ss_contacts.second;
-#endif
-#if EPS_HP != 0
-	H += EPS_HP * calc.ss_contacts.third;
-#endif
-#if EPS_HB != 0
-	H += EPS_HB * calc.bs_contacts.first;
-#endif
-#if EPS_PB != 0
-	H += EPS_PB * calc.bs_contacts.second;
-#endif
-#if EPS_BB != 0
-	H += EPS_BB * calc.bb_contacts;
-#endif
+	// Keep summing on energy
+	H += EPS_HH * measures.hh;
+	H += EPS_PP * measures.pp;
+	H += EPS_HP * measures.hp;
+	H += EPS_HB * measures.hb;
+	H += EPS_PB * measures.pb;
+	H += EPS_BB * measures.bb;
 
 	debug_print("Contacts Energy (H): %lf\n", H);
 
-	double penalty = PENALTY_VALUE * calc.collisions;
+	double penalty = PENALTY_VALUE * measures.collisions;
 	debug_print("Penalty: %lf\n", penalty);
 
 // Then we calculate the mass center for H beads and P beads (we'll need for gyration)
@@ -116,15 +95,14 @@ void FitnessCalc_measures(int threadId, const MovElem *chain, int *Hcontacts_p, 
 
 	MovChain_build_3d(chain, chainSize, &coordsBB, &coordsSC);
 
-	ITriple ss_contacts = count_contacts_ss(threadId, coordsSC, fitCalc.hpChain, fitCalc.hpSize);
-	int collisions  = count_collisions(threadId, coordsBB, coordsSC, fitCalc.hpSize);
+	BeadMeasures measures = proteinMeasures(threadId, coordsBB, coordsSC, fitCalc.hpChain, fitCalc.hpSize);
 
 	if(Hcontacts_p){
-		*Hcontacts_p = ss_contacts.first;
+		*Hcontacts_p = measures.hh;
 	}
 
 	if(collisions_p){
-		*collisions_p = collisions;
+		*collisions_p = measures.collisions;
 	}
 
 	if(bbGyration_p){
