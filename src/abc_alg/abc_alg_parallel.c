@@ -41,7 +41,7 @@ void parallel_calculate_fitness(Solution *sols, int nSols, int hpSize){
 		ElfTreeComm_scatter(buff, hpSize - 1, MPI_CHAR, HIVE_COMM.comm);
 
 		// Calculate own fitness
-		sols[i].fitness = FitnessCalc_run2(0, buff);
+		sols[i].fitness = FitnessCalc_run2(buff);
 
 		// Gather fitnesses
 		ElfTreeComm_gather(recvBuff, 1, MPI_DOUBLE, HIVE_COMM.comm);
@@ -51,7 +51,7 @@ void parallel_calculate_fitness(Solution *sols, int nSols, int hpSize){
 			sols[i+j].fitness = recvBuff[j];
 
 			// For verifying correctness of fitness
-			// int good = sols[i+j].fitness == FitnessCalc_run2(0, buff + j * (hpSize - 1));
+			// int good = sols[i+j].fitness == FitnessCalc_run2(buff + j * (hpSize - 1));
 			// debug_print("%s\n", good ? "Correct!" : "Wrong!");
 		}
 	}
@@ -229,7 +229,7 @@ void slave_routine(const HPElem *hpChain, int hpSize){
 			debug_print("%s", "Ordered to do nothing.\n");
 			sendBuff[0] = 0;
 		} else {
-			sendBuff[0] = FitnessCalc_run2(0, buff);
+			sendBuff[0] = FitnessCalc_run2(buff);
 			debug_print("Received work. Calculated fitness: %lf\n", sendBuff[0]);
 		}
 
@@ -394,7 +394,7 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 	HIVE_COMM.comm = hiveComm;
 	HIVE_COMM.size = nodesPerHive;
 	random_seed();
-	FitnessCalc_initialize(0, hpChain, hpSize);
+	FitnessCalc_initialize(hpChain, hpSize);
 
 	int myHiveRank, myWorldRank;
 	MPI_Comm_rank(hiveComm, &myHiveRank);
@@ -452,7 +452,7 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 
 		if(results && myWorldRank == 0){
 			results->fitness = HIVE.best.fitness;
-			FitnessCalc_measures(0, retval, &results->contactsH, &results->collisions, &results->bbGyration);
+			FitnessCalc_measures(retval, &results->contactsH, &results->collisions, &results->bbGyration);
 		}
 
 		// Tell slaves to return
@@ -465,7 +465,7 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 	}
 
 	MPI_Barrier(hiveComm);
-	FitnessCalc_cleanup(0);
+	FitnessCalc_cleanup();
 	HIVE_destroy();
 	MPI_Comm_free(&hiveComm);
 	MPI_Finalize();
@@ -529,7 +529,7 @@ int main(int argc, char *argv[]){
 	int size = 7;
 	char filename[256];
 
-	FitnessCalc_initialize(0, hpChain, size);
+	FitnessCalc_initialize(hpChain, size);
 	random_seed();
 
 //	TEST 1

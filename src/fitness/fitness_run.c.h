@@ -1,14 +1,14 @@
 #ifndef _FITNESS_RUN_C_H_
 #define _FITNESS_RUN_C_H_
 
-double FitnessCalc_run(int threadId, const int3d *coordsBB, const int3d *coordsSC){
+double FitnessCalc_run(const int3d *coordsBB, const int3d *coordsSC){
 	int i;
-	FitnessCalc fitCalc = FitnessCalc_get(threadId);
+	FitnessCalc fitCalc = FitnessCalc_get();
 
 	// H is the energy related to different kinds of contacts among side-chain and backbone beads.
 	double H = 0; // Free energy of the protein
 
-	BeadMeasures measures = proteinMeasures(threadId, coordsBB, coordsSC, fitCalc.hpChain, fitCalc.hpSize);
+	BeadMeasures measures = proteinMeasures(coordsBB, coordsSC, fitCalc.hpChain, fitCalc.hpSize);
 
 	// Keep summing on energy
 	H += EPS_HH * measures.hh;
@@ -74,28 +74,28 @@ double FitnessCalc_run(int threadId, const int3d *coordsBB, const int3d *coordsS
 	return (H - penalty) * radiusG_H * radiusG_P;
 }
 
-double FitnessCalc_run2(int threadId, const MovElem * chain){
+double FitnessCalc_run2(const MovElem * chain){
 	int3d *coordsBB, *coordsSC;
 
-	FitnessCalc fitCalc = FitnessCalc_get(threadId);
+	FitnessCalc fitCalc = FitnessCalc_get();
 	int chainSize = fitCalc.hpSize - 1;
 
 	MovChain_build_3d(chain, chainSize, &coordsBB, &coordsSC);
-	double fit = FitnessCalc_run(threadId, coordsBB, coordsSC);
+	double fit = FitnessCalc_run(coordsBB, coordsSC);
 	free(coordsBB);
 	free(coordsSC);
 	return fit;
 }
 
-void FitnessCalc_measures(int threadId, const MovElem *chain, int *Hcontacts_p, int *collisions_p, double *bbGyration_p){
+void FitnessCalc_measures(const MovElem *chain, int *Hcontacts_p, int *collisions_p, double *bbGyration_p){
 	int3d *coordsBB, *coordsSC;
 
-	FitnessCalc fitCalc = FitnessCalc_get(threadId);
+	FitnessCalc fitCalc = FitnessCalc_get();
 	int chainSize = fitCalc.hpSize - 1;
 
 	MovChain_build_3d(chain, chainSize, &coordsBB, &coordsSC);
 
-	BeadMeasures measures = proteinMeasures(threadId, coordsBB, coordsSC, fitCalc.hpChain, fitCalc.hpSize);
+	BeadMeasures measures = proteinMeasures(coordsBB, coordsSC, fitCalc.hpChain, fitCalc.hpSize);
 
 	if(Hcontacts_p){
 		*Hcontacts_p = measures.hh;

@@ -21,7 +21,7 @@ void forager_phase(int hpSize){
 	for(i = 0; i < HIVE.nSols; i++){
 		// Change a random element of the solution
 		Solution alt = perturb_solution(i, hpSize);
-        alt.fitness = FitnessCalc_run2(0, alt.position);
+        alt.fitness = FitnessCalc_run2(alt.position);
 		bool replaced = replace_solution(alt, i, hpSize);
 
 		// If 'alt' wasn't a better solution
@@ -76,7 +76,7 @@ void onlooker_phase(int hpSize){
 		for(j = 0; j < nIter; j++){
 			// Change a random element of the solution
 			Solution alt = perturb_solution(i, hpSize);
-            alt.fitness = FitnessCalc_run2(0, alt.position);
+            alt.fitness = FitnessCalc_run2(alt.position);
 			bool replaced = replace_solution(alt, i, hpSize);
 
 			// If 'alt' wasn't a better solution
@@ -108,7 +108,7 @@ void scout_phase(int hpSize){
 		if(HIVE.sols[i].idle_iterations > IDLE_LIMIT){
 			HIVE_remove_solution(i);
             Solution sol = Solution_random(hpSize);
-            sol.fitness = FitnessCalc_run2(0, sol.position);
+            sol.fitness = FitnessCalc_run2(sol.position);
             HIVE_add_solution(sol, i, hpSize);
 
 			debug_print("Found idle solution: %d\n", i);
@@ -120,7 +120,7 @@ void scout_phase(int hpSize){
 
 MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, PredResults *results){
 	HIVE_initialize();
-	FitnessCalc_initialize(0, hpChain, hpSize);
+	FitnessCalc_initialize(hpChain, hpSize);
 	random_seed();
 
 	int i;
@@ -145,10 +145,10 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 
 	if(results){
 		results->fitness = HIVE.best.fitness;
-		FitnessCalc_measures(0, retval, &results->contactsH, &results->collisions, &results->bbGyration);
+		FitnessCalc_measures(retval, &results->contactsH, &results->collisions, &results->bbGyration);
 	}
 
-	FitnessCalc_cleanup(0);
+	FitnessCalc_cleanup();
 	HIVE_destroy();
 
 	return retval;
@@ -210,7 +210,7 @@ int main(int argc, char *argv[]){
 	int size = 7;
 	char filename[256];
 
-	FitnessCalc_initialize(0, hpChain, size);
+	FitnessCalc_initialize(hpChain, size);
 	random_seed();
 
 //	TEST 1

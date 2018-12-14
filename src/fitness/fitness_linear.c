@@ -21,21 +21,16 @@
 
 #define MAX_MEMORY 4E16  // Max total size of memory allocated
 static long int MEM_USED = 0;
-static FitnessCalc FIT_BUNDLE[MAX_POINTERS] = { {0, 0, NULL, 0, 0} };
+static FitnessCalc FIT_BUNDLE = {0, 0, NULL, 0, 0};
 
-void FitnessCalc_initialize(int threadId, const HPElem * hpChain, int hpSize){
-	if(threadId >= MAX_POINTERS){
-		error_print("%s", "Invallid index given.\n");
-		exit(EXIT_FAILURE);
-	}
-
-	if(FIT_BUNDLE[threadId].space3d != NULL){
+void FitnessCalc_initialize(const HPElem * hpChain, int hpSize){
+	if(FIT_BUNDLE.space3d != NULL){
 		error_print("%s", "Double initialization.\n");
 		exit(EXIT_FAILURE);
 	}
 
-	FIT_BUNDLE[threadId].hpChain = hpChain;
-	FIT_BUNDLE[threadId].hpSize = hpSize;
+	FIT_BUNDLE.hpChain = hpChain;
+	FIT_BUNDLE.hpSize = hpSize;
 
 	int axisSize = (hpSize+3)*2;
 	long int spaceSize = axisSize * axisSize * (long int) axisSize;
@@ -51,31 +46,31 @@ void FitnessCalc_initialize(int threadId, const HPElem * hpChain, int hpSize){
 		exit(EXIT_FAILURE);
 	}
 
-	FIT_BUNDLE[threadId].axisSize = axisSize;
-	FIT_BUNDLE[threadId].space3d = malloc(spaceSize * sizeof(char));
-	FIT_BUNDLE[threadId].maxGyration = calc_max_gyration(hpChain, hpSize);
+	FIT_BUNDLE.axisSize = axisSize;
+	FIT_BUNDLE.space3d = malloc(spaceSize * sizeof(char));
+	FIT_BUNDLE.maxGyration = calc_max_gyration(hpChain, hpSize);
 
 	debug_print("Space allocated: %lf GiB\n", spaceSize * sizeof(char) / 1024.0 / 1024.0 / 1024.0);
 }
 
-void FitnessCalc_cleanup(int threadId){
+void FitnessCalc_cleanup(){
 	// No checks will be done
-	free(FIT_BUNDLE[threadId].space3d);
-	FIT_BUNDLE[threadId].space3d = NULL;
+	free(FIT_BUNDLE.space3d);
+	FIT_BUNDLE.space3d = NULL;
 
-	int axisSize = FIT_BUNDLE[threadId].axisSize;
+	int axisSize = FIT_BUNDLE.axisSize;
 	MEM_USED -= axisSize * axisSize * (long int) axisSize;
 }
 
-/* Returns the FitnessCalc with index 'threadId'
+/* Returns the FitnessCalc
  */
 static inline
-FitnessCalc FitnessCalc_get(int threadId){
-	if(FIT_BUNDLE[threadId].space3d == NULL){
+FitnessCalc FitnessCalc_get(){
+	if(FIT_BUNDLE.space3d == NULL){
 		error_print("%s", "FitnessCalc must be initialized.\n");
 		exit(EXIT_FAILURE);
 	}
-	return FIT_BUNDLE[threadId];
+	return FIT_BUNDLE;
 }
 
 
@@ -85,12 +80,12 @@ FitnessCalc FitnessCalc_get(int threadId){
  * 'space3d' is 3D lattice whose axis has size axisSize (positive + negative sides of the axis).
  */
 static
-int count_collisions(int threadId, const int3d *beads, int nBeads){
+int count_collisions(const int3d *beads, int nBeads){
 	int i, collisions;
 
 	// Get space3d associated with that thread
-	char *space3d = FIT_BUNDLE[threadId].space3d;
-	int axisSize = FIT_BUNDLE[threadId].axisSize;
+	char *space3d = FIT_BUNDLE.space3d;
+	int axisSize = FIT_BUNDLE.axisSize;
 	
 	collisions = 0;
 
@@ -114,12 +109,12 @@ int count_collisions(int threadId, const int3d *beads, int nBeads){
  * 'space3d' is 3D lattice whose axis has size axisSize (positive + negative sides of the axis).
  */
 static
-int count_contacts(int threadId, const int3d *beads, int nBeads){
+int count_contacts(const int3d *beads, int nBeads){
 	int i;
 
 	// Get space3d associated with that thread
-	char *space3d = FIT_BUNDLE[threadId].space3d;
-	int axisSize = FIT_BUNDLE[threadId].axisSize;
+	char *space3d = FIT_BUNDLE.space3d;
+	int axisSize = FIT_BUNDLE.axisSize;
 
 	int contacts = 0;
 	
@@ -155,7 +150,7 @@ int count_contacts(int threadId, const int3d *beads, int nBeads){
 	return contacts / 2;
 }
 
-BeadMeasures proteinMeasures(int threadId, const int3d *BBbeads, const int3d *SCbeads, const HPElem *hpChain, int hpSize){
+BeadMeasures proteinMeasures(const int3d *BBbeads, const int3d *SCbeads, const HPElem *hpChain, int hpSize){
 	int i;
 
 	// Create vectors with desired coordinates of beads
@@ -195,13 +190,13 @@ BeadMeasures proteinMeasures(int threadId, const int3d *BBbeads, const int3d *SC
 
 	BeadMeasures retval;
 
-	retval.hh = count_contacts(threadId, coordsHH, sizeHH);
-	retval.pp = count_contacts(threadId, coordsPP, sizePP);
-	retval.hp = count_contacts(threadId, coordsHP, sizeHP) - retval.hh - retval.pp; // HP = all - HH - PP
-	retval.bb = count_contacts(threadId, coordsBB, sizeBB);
-	retval.hb = count_contacts(threadId, coordsHB, sizeHB) - retval.hh - retval.bb; // HB = all - HH - BB
-	retval.pb = count_contacts(threadId, coordsPB, sizePB) - retval.pp - retval.bb; // PB = all - PP - BB
-	retval.collisions = count_collisions(threadId, coordsAll, sizeAll);
+	retval.hh = count_contacts(coordsHH, sizeHH);
+	retval.pp = count_contacts(coordsPP, sizePP);
+	retval.hp = count_contacts(coordsHP, sizeHP) - retval.hh - retval.pp; // HP = all - HH - PP
+	retval.bb = count_contacts(coordsBB, sizeBB);
+	retval.hb = count_contacts(coordsHB, sizeHB) - retval.hh - retval.bb; // HB = all - HH - BB
+	retval.pb = count_contacts(coordsPB, sizePB) - retval.pp - retval.bb; // PB = all - PP - BB
+	retval.collisions = count_collisions(coordsAll, sizeAll);
 
 	free(coordsAll);
 	free(coordsBB);

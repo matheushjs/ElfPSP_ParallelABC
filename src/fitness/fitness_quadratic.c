@@ -15,28 +15,23 @@
 /* Include gyration calculation procedures */
 #include "fitness_gyration.c.h"
 
-static FitnessCalc FIT_BUNDLE[MAX_POINTERS] = { {0, 0, NULL, 0, 0} };
+static FitnessCalc FIT_BUNDLE = {0, 0, NULL, 0, 0};
 
-void FitnessCalc_initialize(int threadId, const HPElem * hpChain, int hpSize){
-	if(threadId >= MAX_POINTERS){
-		error_print("%s", "Invallid index given.\n");
-		exit(EXIT_FAILURE);
-	}
-
-	FIT_BUNDLE[threadId].hpChain = hpChain;
-	FIT_BUNDLE[threadId].hpSize = hpSize;
-	FIT_BUNDLE[threadId].maxGyration = calc_max_gyration(hpChain, hpSize);
+void FitnessCalc_initialize(const HPElem * hpChain, int hpSize){
+	FIT_BUNDLE.hpChain = hpChain;
+	FIT_BUNDLE.hpSize = hpSize;
+	FIT_BUNDLE.maxGyration = calc_max_gyration(hpChain, hpSize);
 }
 
-void FitnessCalc_cleanup(int threadId){
+void FitnessCalc_cleanup(){
 	return;
 }
 
-/* Returns the FitnessCalc with index 'threadId'
+/* Returns the FitnessCalc
  */
 static inline
-FitnessCalc FitnessCalc_get(int threadId){
-	return FIT_BUNDLE[threadId];
+FitnessCalc FitnessCalc_get(){
+	return FIT_BUNDLE;
 }
 
 
@@ -44,7 +39,7 @@ FitnessCalc FitnessCalc_get(int threadId){
 /* Counts the number of conflicts among the protein beads.
  */
 static
-int count_collisions(int threadId, const int3d *beads, int nBeads){
+int count_collisions(const int3d *beads, int nBeads){
 	int i, j;
 	int collisions = 0;
 
@@ -64,7 +59,7 @@ int count_collisions(int threadId, const int3d *beads, int nBeads){
 /* Counts the number of contacts among the protein beads.
  */
 static
-int count_contacts(int threadId, const int3d *beads, int nBeads){
+int count_contacts(const int3d *beads, int nBeads){
 	int i, j;
 	int contacts = 0;
 
@@ -81,7 +76,7 @@ int count_contacts(int threadId, const int3d *beads, int nBeads){
 	return contacts;
 }
 
-BeadMeasures proteinMeasures(int threadId, const int3d *BBbeads, const int3d *SCbeads, const HPElem *hpChain, int hpSize){
+BeadMeasures proteinMeasures(const int3d *BBbeads, const int3d *SCbeads, const HPElem *hpChain, int hpSize){
 	int i;
 
 	// Create vectors with desired coordinates of beads
@@ -121,13 +116,13 @@ BeadMeasures proteinMeasures(int threadId, const int3d *BBbeads, const int3d *SC
 
 	BeadMeasures retval;
 
-	retval.hh = count_contacts(threadId, coordsHH, sizeHH);
-	retval.pp = count_contacts(threadId, coordsPP, sizePP);
-	retval.hp = count_contacts(threadId, coordsHP, sizeHP) - retval.hh - retval.pp; // HP = all - HH - PP
-	retval.bb = count_contacts(threadId, coordsBB, sizeBB);
-	retval.hb = count_contacts(threadId, coordsHB, sizeHB) - retval.hh - retval.bb; // HB = all - HH - BB
-	retval.pb = count_contacts(threadId, coordsPB, sizePB) - retval.pp - retval.bb; // PB = all - PP - BB
-	retval.collisions = count_collisions(threadId, coordsAll, sizeAll);
+	retval.hh = count_contacts(coordsHH, sizeHH);
+	retval.pp = count_contacts(coordsPP, sizePP);
+	retval.hp = count_contacts(coordsHP, sizeHP) - retval.hh - retval.pp; // HP = all - HH - PP
+	retval.bb = count_contacts(coordsBB, sizeBB);
+	retval.hb = count_contacts(coordsHB, sizeHB) - retval.hh - retval.bb; // HB = all - HH - BB
+	retval.pb = count_contacts(coordsPB, sizePB) - retval.pp - retval.bb; // PB = all - PP - BB
+	retval.collisions = count_collisions(coordsAll, sizeAll);
 
 	free(coordsAll);
 	free(coordsBB);
