@@ -12,11 +12,8 @@ MPI_CFLAGS=-I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libeve
 VPATH= src/
 
 
-all:
-	make parallel_lin  UFLAGS="$(UFLAGS)" DEFS="$(DEFS)"
-	make parallel_quad UFLAGS="$(UFLAGS)" DEFS="$(DEFS)"
-	make seq_lin       UFLAGS="$(UFLAGS)" DEFS="$(DEFS)"
-	make seq_quad      UFLAGS="$(UFLAGS)" DEFS="$(DEFS)"
+all: parallel_lin parallel_quad seq_lin seq_quad
+	@echo -n
 
 parallel_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
@@ -44,9 +41,9 @@ clean_all: clean
 main.o:               main.c  Makefile
 int3d.o:              int3d.c  int3d.h  Makefile
 fitness_quadratic.o:  fitness/fitness_quadratic.c fitness/fitness_run.c.h fitness/fitness_gyration.c.h  \
-                        fitness/fitness.h  fitness/fitness_structures.c.h Makefile
+                        fitness/fitness.h  fitness/fitness_private.h Makefile
 fitness_linear.o:     fitness/fitness_linear.c fitness/fitness_run.c.h fitness/fitness_gyration.c.h  \
-                        fitness/fitness.h  fitness/fitness_structures.c.h Makefile
+                        fitness/fitness.h  fitness/fitness_private.h Makefile
 hpchain.o:            hpchain.c  hpchain.h  Makefile
 movchain.o:           movchain.c  movchain.h  Makefile
 mtwist.o:             mtwist/mtwist.c  mtwist/mtwist.h  Makefile
