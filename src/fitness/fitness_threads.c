@@ -44,7 +44,6 @@ int count_collisions(const int3d *beads, int nBeads){
 	int i, j;
 	int collisions = 0;
 
-	#pragma omp parallel for private(i,j) reduction(+:collisions)
 	for(i = 0; i < nBeads; i++){
 		int3d bead = beads[i];
 
@@ -65,7 +64,6 @@ int count_contacts(const int3d *beads, int nBeads){
 	int i, j;
 	int contacts = 0;
 
-	#pragma omp parallel for private(i,j) reduction(+:contacts)
 	for(i = 0; i < nBeads; i++){
 		int3d bead = beads[i];
 
@@ -119,13 +117,33 @@ BeadMeasures proteinMeasures(const int3d *BBbeads, const int3d *SCbeads, const H
 
 	BeadMeasures retval;
 
-	retval.hh = count_contacts(coordsHH, sizeHH);
-	retval.pp = count_contacts(coordsPP, sizePP);
-	retval.hp = count_contacts(coordsHP, sizeHP) - retval.hh - retval.pp; // HP = all - HH - PP
-	retval.bb = count_contacts(coordsBB, sizeBB);
-	retval.hb = count_contacts(coordsHB, sizeHB) - retval.hh - retval.bb; // HB = all - HH - BB
-	retval.pb = count_contacts(coordsPB, sizePB) - retval.pp - retval.bb; // PB = all - PP - BB
-	retval.collisions = count_collisions(coordsAll, sizeAll);
+	#pragma omp parallel for default(shared) schedule(dynamic, 1)
+	for(i = 0; i < 7; i++){
+		switch(i){
+		case 0:
+			retval.hh = count_contacts(coordsHH, sizeHH);
+			break;
+		case 1:
+			retval.pp = count_contacts(coordsPP, sizePP);
+			break;
+		case 2:
+			retval.hp = count_contacts(coordsHP, sizeHP) - retval.hh - retval.pp; // HP = all - HH - PP
+			break;
+		case 3:
+			retval.bb = count_contacts(coordsBB, sizeBB);
+			break;
+		case 4:
+			retval.hb = count_contacts(coordsHB, sizeHB) - retval.hh - retval.bb; // HB = all - HH - BB
+			break;
+		case 5:
+			retval.pb = count_contacts(coordsPB, sizePB) - retval.pp - retval.bb; // PB = all - PP - BB
+			break;
+		case 6:
+			retval.collisions = count_collisions(coordsAll, sizeAll);
+			break;
+		default: break;
+		}
+	}
 
 	free(coordsAll);
 	free(coordsBB);
