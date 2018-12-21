@@ -15,8 +15,8 @@ MPI_CFLAGS=-I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libeve
 # This is a variable used by Makefile itself
 VPATH=src/
 
-all: parallel_lin parallel_quad parallel_threads parallel_cuda seq_lin seq_quad seq_threads seq_cuda
-	@echo ""
+all:
+	make parallel_lin parallel_quad parallel_threads parallel_cuda seq_lin seq_quad seq_threads seq_cuda
 
 parallel_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
