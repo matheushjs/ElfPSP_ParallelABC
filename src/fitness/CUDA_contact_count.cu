@@ -178,6 +178,11 @@ cudaStream_t get_next_stream(){
  */
 extern "C" struct CollisionCountPromise
 count_contacts_launch(ElfFloat3d *vector, int size){
+	if(size == 0){
+		CollisionCountPromise retval = { NULL, NULL };
+		return retval;
+	}
+
 	float3 *d_vector;
 	int *d_result;
 	cudaStream_t stream = get_next_stream();
@@ -241,6 +246,9 @@ count_contacts_launch(ElfFloat3d *vector, int size){
  *   it shouldn't be used anywhere after a call to this function.
  */
 extern "C" int count_contacts_fetch(struct CollisionCountPromise promise){
+	if(promise.d_toReduce == NULL && promise.d_reduced == NULL)
+		return 0;
+
 	const int n = 1;
 	int result[n];
 	cudaMemcpy(&result, promise.d_reduced, sizeof(int) * n, cudaMemcpyDeviceToHost);
