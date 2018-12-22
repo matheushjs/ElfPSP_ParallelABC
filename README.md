@@ -1,7 +1,7 @@
 Elf Protein Structure Prediction - Parallel ABC Algorithm
 ===
 
-<img src="https://mjsaldanha.com/images/elf_icon.png" width="128" height="128">
+<a href="https://mjsaldanha.com"><img src="https://mjsaldanha.com/images/elf_icon.png" width="128" height="128"></a>
 
 Implementations of a Protein Structure Prediction (PSP) program, using an Artificial Bee Colony optimization algorithm.
 
