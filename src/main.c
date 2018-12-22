@@ -65,9 +65,12 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
+	// Initialize configuration variables
+	initialize_configuration();
+
 	HPElem *hpChain = argv[1];
 	int     hpSize  = strlen(hpChain);
-	int   nCycles  = argc >= 3 ? atoi(argv[2]) : 600;
+	int   nCycles  = argc >= 3 ? atoi(argv[2]) : N_CYCLES;
 	char *outFile  = argc >= 4 ? argv[3]       : "output.txt";
 
 	// Validate HP Chain
@@ -77,9 +80,6 @@ int main(int argc, char *argv[]){
 		                "Chain must also have at least 1 'H' bead.\n", argv[1]);
 		return 1;
 	}
-
-	// Initialize configuration variables
-	initialize_configuration();
 
 	clock_t beg = clock();
 

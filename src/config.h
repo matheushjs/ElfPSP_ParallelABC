@@ -1,25 +1,25 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-extern int EPS_HH; // Epsilon for H-H side-chain contacts
-extern int EPS_HP; // Epsilon for H-P side-chain contacts
-extern int EPS_HB; // Epsilon for H-B side-chain contacts
-extern int EPS_PP; // Epsilon for P-P side-chain contacts
-extern int EPS_PB; // Epsilon for P-B side-chain contacts
-extern int EPS_BB; // Epsilon for B-B side-chain contacts
-extern int PENALTY_VALUE; // Penalty value for collisions
+/* Check configuration.yml for documentation of the variables below */
+extern int EPS_HH;
+extern int EPS_HP;
+extern int EPS_HB;
+extern int EPS_PP;
+extern int EPS_PB;
+extern int EPS_BB;
+extern int PENALTY_VALUE;
+extern int N_CYCLES;
+extern int COLONY_SIZE;
+extern double FORAGER_RATIO;
+extern int IDLE_LIMIT;
+extern int N_HIVES;
 
 // Initializes configuration based on the configuration file.
 void initialize_configuration();
 
-/* config.h
- *
- * Header file for configuring the parameters of the program.
- * All parameters are given as macros.
- *
- * All the macros have been written in a way such that each parameter can be
- *   overriden by macros defined on command line (e.g. "-DEPS_HH=1" option on gcc)
- *
+/* All the macros below have been written in a way such that each parameter can be
+ *   overriden by macros defined on command line (e.g. "-DEBUG=1" option on gcc)
  */
 
 
@@ -33,30 +33,5 @@ void initialize_configuration();
 #ifndef PROFILE
 	#define PROFILE 0 // 0 disables some profiling messages
 #endif
-
-
-/*************************/
-/***  ABC ALGORITHM    ***/
-/*************************/
-
-#ifndef COLONY_SIZE
-	#define COLONY_SIZE 250 // Number of bees in the colony
-#endif
-#ifndef FORAGER_RATIO
-	#define FORAGER_RATIO 0.5 // Proportion of foragers in the colony
-#endif
-#ifndef IDLE_LIMIT
-	#define IDLE_LIMIT 100 // Maximum number of iterations through which the solution did not improve
-#endif
-
-
-/*************************/
-/***  COMM. TOPOLOGY   ***/
-/*************************/
-
-#ifndef N_HIVES
-	#define N_HIVES 1 // Number of hives in the system (each hive is a master-slave system)
-#endif
-
 
 #endif // CONFIG_H
