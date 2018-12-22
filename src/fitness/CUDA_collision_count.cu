@@ -5,7 +5,21 @@
 extern "C" {
 	#include "CUDA_collision_count.h"
 }
-#include "cuda_utils.h"
+
+/* Divides 'dividend' by 'divisor', rounding up.
+ */
+static inline
+int divisionCeil(int dividend, int divisor){
+	return (dividend + divisor - 1) / divisor;
+}
+
+// Returns the first power of 2 that is >= 'base'.
+static inline
+int higherEqualPow2(int base){
+	int result = 1;
+	while(result < base) result <<= 1;
+	return result;
+}
 
 /* Multi-block reduce.
  * Accepts only vectors that are power of 2.
