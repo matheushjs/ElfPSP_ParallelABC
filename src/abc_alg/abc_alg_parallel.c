@@ -1,9 +1,16 @@
-
-// Include common source code shared by _sequential and _parallel source files.
-#include "abc_alg_common.c.h"
-
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include <mpi/mpi.h>
+
+#include <movchain.h>
+#include <hpchain.h>
+#include <fitness/fitness.h>
+#include <random.h>
+
 #include "elf_tree_comm.h"
+#include "abc_alg.h"
+#include "abc_alg_common.h"
 
 
 /******************************************/

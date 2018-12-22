@@ -1,6 +1,14 @@
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
-// Include common source code shared by _sequential and _parallel source files.
-#include "abc_alg_common.c.h"
+#include <movchain.h>
+#include <hpchain.h>
+#include <fitness/fitness.h>
+#include <random.h>
+
+#include "abc_alg.h"
+#include "abc_alg_common.h"
 
 
 /******************************************/
