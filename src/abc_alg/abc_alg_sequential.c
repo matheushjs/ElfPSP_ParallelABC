@@ -28,9 +28,9 @@ void forager_phase(int hpSize){
 
 	for(i = 0; i < HIVE.nSols; i++){
 		// Change a random element of the solution
-		Solution alt = perturb_solution(i, hpSize);
+		Solution alt = HIVE_perturb_solution(i, hpSize);
         alt.fitness = FitnessCalc_run2(alt.position);
-		bool replaced = replace_solution(alt, i, hpSize);
+		bool replaced = HIVE_replace_solution(alt, i, hpSize);
 
 		// If 'alt' wasn't a better solution
 		if(replaced == false){
@@ -83,9 +83,9 @@ void onlooker_phase(int hpSize){
 
 		for(j = 0; j < nIter; j++){
 			// Change a random element of the solution
-			Solution alt = perturb_solution(i, hpSize);
+			Solution alt = HIVE_perturb_solution(i, hpSize);
             alt.fitness = FitnessCalc_run2(alt.position);
-			bool replaced = replace_solution(alt, i, hpSize);
+			bool replaced = HIVE_replace_solution(alt, i, hpSize);
 
 			// If 'alt' wasn't a better solution
 			if(replaced == false){

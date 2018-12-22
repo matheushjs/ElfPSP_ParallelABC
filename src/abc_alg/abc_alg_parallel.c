@@ -80,14 +80,14 @@ void parallel_forager_phase(int hpSize){
 
 	// Generate new random solutions
 	for(i = 0; i < HIVE.nSols; i++)
-		sols[i] = perturb_solution(i, hpSize);
+		sols[i] = HIVE_perturb_solution(i, hpSize);
 
 	// Calculate fitnesses
 	parallel_calculate_fitness(sols, HIVE.nSols, hpSize);
 
 	// Replace solutions in the HIVE
 	for(i = 0; i < HIVE.nSols; i++){
-		bool replaced = replace_solution(sols[i], i, hpSize);
+		bool replaced = HIVE_replace_solution(sols[i], i, hpSize);
 
 		// If wasn't a better solution
 		if(replaced == false){
@@ -145,7 +145,7 @@ void parallel_onlooker_phase(int hpSize){
 
 		// Generate perturbations
 		for(j = 0; j < nIter; j++){
-			sols[nSols] = perturb_solution(i, hpSize);
+			sols[nSols] = HIVE_perturb_solution(i, hpSize);
 			indexes[nSols] = i;
 			nSols++;
 		}
@@ -157,7 +157,7 @@ void parallel_onlooker_phase(int hpSize){
 
 	// Replace solutions where due
 	for(i = 0; i < nSols; i++){
-		bool replaced = replace_solution(sols[i], indexes[i], hpSize);
+		bool replaced = HIVE_replace_solution(sols[i], indexes[i], hpSize);
 
 		// If wasn't a better solution
 		if(replaced == false){

@@ -155,7 +155,7 @@ void HIVE_increment_idle(int index){
 }
 
 // Documented in header file
-Solution perturb_solution(int index, int hpSize){
+Solution HIVE_perturb_solution(int index, int hpSize){
 	int other;
 
 	do {
@@ -166,7 +166,7 @@ Solution perturb_solution(int index, int hpSize){
 }
 
 // Documented in header file
-bool replace_solution(Solution alt, int index, int hpSize){
+bool HIVE_replace_solution(Solution alt, int index, int hpSize){
     if(alt.fitness > HIVE.sols[index].fitness){
         HIVE_remove_solution(index);
         HIVE_add_solution(alt, index, hpSize);

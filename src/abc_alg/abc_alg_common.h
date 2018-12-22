@@ -75,7 +75,7 @@ void HIVE_increment_idle(int index);
  * SOL1's movement at spot SPOT is made to approach the value in SOL2's movement
  *   at the same spot.
  */
-Solution perturb_solution(int index, int hpSize);
+Solution HIVE_perturb_solution(int index, int hpSize);
 
 /* The current Solution with index 'index' is SOL1.
  * Checks if 'alt' has a better fitness, and if that is so, replaces SOL1 with 'alt'.
@@ -84,6 +84,6 @@ Solution perturb_solution(int index, int hpSize);
  * If the original solution is replaced, 'alt' must not have its memory freed.
  * If it is not replaced, the user MUST call Solution_free() on 'alt' at some point.
  */
-bool replace_solution(Solution alt, int index, int hpSize);
+bool HIVE_replace_solution(Solution alt, int index, int hpSize);
 
 #endif
