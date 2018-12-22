@@ -16,18 +16,18 @@ MPI_CFLAGS=-I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libeve
 VPATH=src/
 
 all:
-	make parallel_lin parallel_quad parallel_threads parallel_cuda seq_lin seq_quad seq_threads seq_cuda
+	make mpi_lin mpi_quad mpi_threads mpi_cuda seq_lin seq_quad seq_threads seq_cuda
 
-parallel_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+mpi_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-parallel_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+mpi_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-parallel_threads: main.o int3d.o fitness_threads.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+mpi_threads: main.o int3d.o fitness_threads.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
 	gcc -fopenmp $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-parallel_cuda: main.o int3d.o fitness_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+mpi_cuda: main.o int3d.o fitness_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
 	gcc $(CUDA_PRELIBS) $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS) $(CUDA_LIBS)
 
 seq_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o
@@ -48,7 +48,7 @@ clean:
 	rm -vf *~ gmon.out
 
 clean_all: clean
-	rm -vf parallel_lin parallel_quad parallel_threads parallel_cuda seq_lin seq_quad seq_threads seq_cuda
+	rm -vf mpi_lin mpi_quad mpi_threads mpi_cuda seq_lin seq_quad seq_threads seq_cuda
 
 
 # Explicit non-MPI object rules (WHEN ADDING NEW, MUST ADD TO $(BIN) TARGET TOO)
