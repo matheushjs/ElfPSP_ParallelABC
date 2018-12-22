@@ -11,11 +11,10 @@
 #include <string.h>
 
 #include "CUDA_header.h"
+#include "gyration.h"
 
 #include "fitness_private.h"
 
-/* Include gyration calculation procedures */
-#include "fitness_gyration.c.h"
 
 static FitnessCalc FIT_BUNDLE = {0, 0, NULL, 0, 0};
 

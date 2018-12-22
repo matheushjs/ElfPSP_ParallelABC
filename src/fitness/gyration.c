@@ -1,6 +1,3 @@
-#ifndef FITNESS_GYRATION_C_H
-#define FITNESS_GYRATION_C_H
-
 #include <int3d.h>
 #include <hpchain.h>
 #include <utils.h>
@@ -13,18 +10,12 @@
 
 #include "fitness_private.h"
 
-static
+static inline
 double dsquare(double a){
 	return a * a;
 }
 
-/* coords - the coordinates for the beads
- * size   - the number of beads
- * center - the center points (baricenter) for the beads.
- *
- * Returns the gyration radius for the given beads.
- */
-static
+// Documented in header file
 double calc_gyration(const int3d *coords, int size, DPoint center){
 	double gyr = 0;
 
@@ -45,15 +36,7 @@ double calc_gyration(const int3d *coords, int size, DPoint center){
 	return gyr;
 }
 
-/* coordsSC - the coordinates for all side chain beads
- * hpChain - the string representing the types of the side chain beads
- * hpSize - the number of side chain beads
- * centerH and centerP are the center points (baricenter) for H beads and P beads respectively.
- *
- * Returns a DPair where the first element is the gyration for H beads.
- * The second element is gyration for P beads.
- */
-static
+// Documented in header file
 DPair calc_gyration_joint(const int3d *coordsSC, const HPElem * hpChain, int hpSize, DPoint centerH, DPoint centerP){
 	DPair gyr = { 0, 0 };
 	int countH = 0, countP = 0;
@@ -89,14 +72,7 @@ DPair calc_gyration_joint(const int3d *coordsSC, const HPElem * hpChain, int hpS
 	return gyr;
 }
 
-
-/* Calculate MaxRG_H which is the radius of gyration for the hydrophobic beads
- *   considering the protein completely unfolded
- *
- * hpChain - the string representing the types of the side chain beads
- * hpSize - the number of side chain beads
- */
-static
+// Documented in header file
 double calc_max_gyration(const HPElem * hpChain, int hpSize){
 	// First we get the sum of the X coordinates of the H beads
 	int xCoordSum = 0, countH = 0;
@@ -122,6 +98,3 @@ double calc_max_gyration(const HPElem * hpChain, int hpSize){
 	// Final touches
 	return sqrt(maxRG_H / countH);
 }
-
-#endif // FITNESS_GYRATION_C_H
-

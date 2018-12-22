@@ -12,9 +12,7 @@
 #include <omp.h>
 
 #include "fitness_private.h"
-
-/* Include gyration calculation procedures */
-#include "fitness_gyration.c.h"
+#include "gyration.h"
 
 static FitnessCalc FIT_BUNDLE = {0, 0, NULL, 0, 0};
 
