@@ -7,6 +7,7 @@
 #include "movchain.h"
 #include "fitness/fitness.h"
 #include "abc_alg/abc_alg.h"
+#include "config.h"
 
 void print_3d(const MovElem * movchain, const HPElem * hpChain, int hpSize, FILE *fp){
 	int3d *coordsBB, *coordsSC;
@@ -76,6 +77,9 @@ int main(int argc, char *argv[]){
 		                "Chain must also have at least 1 'H' bead.\n", argv[1]);
 		return 1;
 	}
+
+	// Initialize configuration variables
+	initialize_configuration();
 
 	clock_t beg = clock();
 

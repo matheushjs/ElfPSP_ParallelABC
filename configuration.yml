@@ -1,0 +1,19 @@
+EPSILON_HYDROPHOBIC_HYDROPHOBIC: 10
+EPSILON_HYDROPHOBIC_POLAR:       -3
+EPSILON_HYDROPHOBIC_BACKBONE:    -3
+EPSILON_POLAR_POLAR:              1
+EPSILON_POLAR_BACKBONE:           1
+EPSILON_BACKBONE_BACKBONE:        1
+PENALTY_VALUE:                   10
+
+
+# DESCRIPTION
+#
+# EPSILON_HYDROPHOBIC_HYDROPHOBIC  Epsilon for H-H side-chain contacts
+# EPSILON_HYDROPHOBIC_POLAR        Epsilon for H-P side-chain contacts
+# EPSILON_HYDROPHOBIC_BACKBONE     Epsilon for H-B side-chain contacts
+# EPSILON_POLAR_POLAR              Epsilon for P-P side-chain contacts
+# EPSILON_POLAR_BACKBONE           Epsilon for P-B side-chain contacts
+# EPSILON_BACKBONE_BACKBONE        Epsilon for B-B side-chain contacts
+#
+# PENALTY_VALUE                    Penalty value for collisions

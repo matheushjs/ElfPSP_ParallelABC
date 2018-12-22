@@ -18,28 +18,28 @@ VPATH=src/
 all:
 	make mpi_lin mpi_quad mpi_threads mpi_cuda seq_lin seq_quad seq_threads seq_cuda
 
-mpi_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+mpi_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-mpi_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+mpi_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-mpi_threads: main.o int3d.o fitness_threads.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+mpi_threads: main.o int3d.o fitness_threads.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o
 	gcc -fopenmp $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-mpi_cuda: main.o int3d.o fitness_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o
+mpi_cuda: main.o int3d.o fitness_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o
 	gcc $(CUDA_PRELIBS) $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS) $(CUDA_LIBS)
 
-seq_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o
+seq_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o
 	gcc $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-seq_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o
+seq_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o
 	gcc $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-seq_threads: main.o int3d.o fitness_threads.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o
+seq_threads: main.o int3d.o fitness_threads.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o
 	gcc -fopenmp $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-seq_cuda: main.o int3d.o fitness_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o
+seq_cuda: main.o int3d.o fitness_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o
 	gcc $(CUDA_PRELIBS) $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(CUDA_LIBS)
 
 clean:
@@ -62,6 +62,7 @@ hpchain.o:            hpchain.c  hpchain.h  Makefile
 movchain.o:           movchain.c  movchain.h  Makefile
 mtwist.o:             mtwist/mtwist.c  mtwist/mtwist.h  Makefile
 abc_alg_sequential.o: abc_alg/abc_alg_sequential.c abc_alg/abc_alg.h  abc_alg/abc_alg_common.c.h Makefile
+config.o:             config.c config.h Makefile
 
 
 # Explicit CUDA object rules

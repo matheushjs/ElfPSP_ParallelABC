@@ -1,6 +1,17 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+extern int EPS_HH; // Epsilon for H-H side-chain contacts
+extern int EPS_HP; // Epsilon for H-P side-chain contacts
+extern int EPS_HB; // Epsilon for H-B side-chain contacts
+extern int EPS_PP; // Epsilon for P-P side-chain contacts
+extern int EPS_PB; // Epsilon for P-B side-chain contacts
+extern int EPS_BB; // Epsilon for B-B side-chain contacts
+extern int PENALTY_VALUE; // Penalty value for collisions
+
+// Initializes configuration based on the configuration file.
+void initialize_configuration();
+
 /* config.h
  *
  * Header file for configuring the parameters of the program.
@@ -22,38 +33,6 @@
 #ifndef PROFILE
 	#define PROFILE 0 // 0 disables some profiling messages
 #endif
-
-
-
-/*************************/
-/***  FITNESS          ***/
-/*************************/
-
-/* Disable any of the EPS_* below by setting them to 0 */
-
-#ifndef EPS_HH
-        #define EPS_HH 10 // Epsilon for H-H side-chain contacts
-#endif
-#ifndef EPS_HP
-        #define EPS_HP -3 // Epsilon for H-P side-chain contacts
-#endif
-#ifndef EPS_HB
-        #define EPS_HB -3 // Epsilon for H-B side-chain contacts
-#endif
-#ifndef EPS_PP
-        #define EPS_PP 1 // Epsilon for P-P side-chain contacts
-#endif
-#ifndef EPS_PB
-        #define EPS_PB 1 // Epsilon for P-B side-chain contacts
-#endif
-#ifndef EPS_BB
-        #define EPS_BB 1 // Epsilon for B-B contacts
-#endif
-
-#ifndef PENALTY_VALUE
-        #define PENALTY_VALUE 10 // Penalty value for collisions
-#endif
-
 
 
 /*************************/
