@@ -10,8 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "CUDA_collision_count.h"
-#include "CUDA_contact_count.h"
+#include "CUDA_header.h"
 
 #include "fitness_private.h"
 

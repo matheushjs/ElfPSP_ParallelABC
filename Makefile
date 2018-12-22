@@ -67,17 +67,17 @@ abc_alg_common.o:     abc_alg/abc_alg_common.c abc_alg/abc_alg.h Makefile
 
 
 # Explicit CUDA object rules
-CUDA_collision_count.o: fitness/CUDA_collision_count.cu fitness/CUDA_collision_count.h \
+CUDA_collision_count.o: fitness/CUDA_collision_count.cu fitness/CUDA_header.h \
                           Makefile
 	nvcc $(NVCCFLAGS) -c $(DEFS) -o "$@" "$<" $(LIBS)
 
-CUDA_contact_count.o: fitness/CUDA_contact_count.cu fitness/CUDA_contact_count.h \
+CUDA_contact_count.o: fitness/CUDA_contact_count.cu fitness/CUDA_header.h \
                         Makefile
 	nvcc $(NVCCFLAGS) -c $(DEFS) -o "$@" "$<" $(LIBS)
 
 fitness_cuda.o: fitness/fitness_cuda.c fitness/fitness_run.c.h fitness/fitness_gyration.c.h  \
-                  fitness/fitness.h  fitness/fitness_private.h fitness/CUDA_collision_count.h \
-                  fitness/CUDA_contact_count.h Makefile
+                  fitness/fitness.h  fitness/fitness_private.h fitness/CUDA_header.h \
+                  Makefile
 	gcc $(CUDA_PRELIBS) $(CFLAGS) -c $(DEFS) -o "$@" "$<" $(LIBS) $(CUDA_LIBS)
 
 

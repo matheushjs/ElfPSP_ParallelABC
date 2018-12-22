@@ -1,8 +1,6 @@
-#ifndef _CUDA_COLLISION_COUNT_
-#define _CUDA_COLLISION_COUNT_
+#ifndef _CUDA_HEADER_
+#define _CUDA_HEADER_
 
-#ifndef ELF_FLOAT_TYPES
-#define ELF_FLOAT_TYPES
 struct CollisionCountPromise {  // Vectors of # of collisions
 	int *d_toReduce;
 	int *d_reduced;
@@ -19,7 +17,6 @@ typedef struct {
 	int y;
 	int z;
 } ElfInt3d;
-#endif // TYPES
 
 /*
 Launches the GPU procedure for counting collisions in 'vector' which has size 'size'.
@@ -38,5 +35,12 @@ The "Promise" structure is a promise for a future return value, which is returne
   by the non-blocking _launch function.
 */
 int count_collisions_fetch(struct CollisionCountPromise promise);
+
+
+// The functions below have similar behavior as the above ones.
+struct CollisionCountPromise
+	count_contacts_launch(ElfFloat3d *vector, int size);
+
+int count_contacts_fetch(struct CollisionCountPromise promise);
 
 #endif

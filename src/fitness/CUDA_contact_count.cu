@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 extern "C" {
-	#include "CUDA_contact_count.h"
+	#include "CUDA_header.h"
 }
 
 #define EPS 1E-3f

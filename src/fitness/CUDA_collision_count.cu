@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 extern "C" {
-	#include "CUDA_collision_count.h"
+	#include "CUDA_header.h"
 }
 
 /* Divides 'dividend' by 'divisor', rounding up.
