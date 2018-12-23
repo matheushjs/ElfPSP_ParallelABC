@@ -108,7 +108,7 @@ $ ./seq_lin -h
 Usage: ./seq_lin [HP_Sequence] [num_cycles] [output file]
 ```
 
-As you can see, the sequential versions receive 3 optional parameters on command line, 2 of which are optional. Many input parameters can also be specified through the `configurations.yml` file in the root of the directory.
+As you can see, the sequential versions receive 3 optional parameters on command line, 2 of which are optional. Many input parameters can also be specified through the [configuration.yml](configuration.yml) file in the root of the directory.
 
 The `HP_Sequence` is a string of H and P characters, which represent the sequence of aminoacids of the protein whose structure you want predicted. These letters stand for "hydrophobic" and "polar" aminoacids. `num_cycles` refer to the number of cycles of the optimization algorithm, Artificial Bee Colony, and more cycles should result in better predictions. The `output file` is the filename of the file to which we should write the output of the program, whose format is described later.
 
@@ -170,13 +170,14 @@ Which should show a GUI for visualizing and interacting with the protein structu
 Configuring Internal Parameters
 ---
 
-The program has a number of internal parameters (macros) that can be configured upon compilation. All the parameters can be checked in the file `src/config.h`.
+The program has a number of internal parameters (macros) that can be configured. All the parameters can be changed in the file [configuration.yml](configuration.yml); each parameters is also described in such file.
 
-For example, the default number of bees in the colony is 250, but say you want to change it to 1000. You can do it by running:
+For example, the default number of bees in the colony is 250, but say you want to change it to 1000. You can do it by setting in the [configuration.yml](configuration.yml):
 
 ```
-make clean
-make DEFS="-D COLONY_SIZE=1000"
+COLONY_SIZE: 1000
 ```
 
-which will pass the "-D COLONY_SIZE=1000" flag to `gcc`; the "-D" option defines macros on command line. Note that `make clean` should be called before, or Makefile might claim that "all files are up to date" and won't build anything at all.
+Although the file has YAML extension, it can't be restructured as any YAML file. Please, only change the values within this file, without reordering the parameters or adding newlines; the program might not recognize the file contents depending on how it is changed.
+
+Some parameters, such as HP_CHAIN, can also be passed as argument to the program. Arguments have precedence over what is within the [configuration.yml](configuration.yml) file.
