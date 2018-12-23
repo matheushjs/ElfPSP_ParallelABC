@@ -28,22 +28,25 @@ Index
 Overview
 ---
 
-In this repository, I implement the protein structure prediction program described by Professor César Benítez and Professor Heitor Lopes in their article "Parallel Artificial Bee Colony Algorithm Approaches for Protein Structure Prediction Using the 3DHP-SC Model", whose complete reference is given below.
+In this repository is my implementation of a Protein Structure Prediction (PSP) program found in the literature, which I analyzed and optimized in various ways, which is why there are multiple versions of the implementation.
+
+The PSP program in question is the one described by Professor César Benítez and Professor Heitor Lopes in their article "Parallel Artificial Bee Colony Algorithm Approaches for Protein Structure Prediction Using the 3DHP-SC Model", whose complete reference is given below.
 
 > Benítez, C.M.V. and Lopes, H.S., 2010. Parallel artificial bee colony algorithm approaches for protein structure prediction using the 3dhp-sc model. In Intelligent Distributed Computing IV (pp. 255-264). Springer, Berlin, Heidelberg.
 
 The authors provide 2 parallelizations of a sequential PSP program that is described very thoroughly in their article. One of the parallelizations consist in splitting the work among nodes who communicate among themselves in a master-slave fashion; the other version (called Hybrid Hierarchical) splits the work among many master-slave systems, each of which work exactly the same way as the first parallelization described, and the masters communicate among themselves periodically in a ring logical topology. I only implemented the Hybrid Hierarchical version, because it can work exactly the same way as the master-slave version if you configure its parameters accordingly.
 
-I've been investigating their proposal due to my research project, and during analysis I found out that I could greatly improve the execution time of the program by modifying one internal aspect of their algorithm. The modification consists on reducing the complexity of a hotspot of the algorithm, from O(n^2) to O(n). This resulted in the implementation of 4 different versions of the program:
+I've been investigating their proposal due to my [research project](https://mjsaldanha.com/sci-projects/1-psp-project-1/), and during analysis I found out that I could greatly improve the execution time of the program by modifying the most time-consuming procedure: **collision and contact counting**. We implemented 4 different versions of such procedures:
 
-- Sequential Quadratic: sequential version of the PSP algorithm, using the regular quadratic-complexity procedures;
+- **Quadratic**: regular, quadratic-complexity counting (for each bead, check if it collides with any subsequent beads);
 
-- Sequential Linear: sequential version of the PSP algorithm, using the linear-complexity procedures I devised;
+- **Linear**: linear-complexity algorithm that we proposed, which is better explained in the [original repository](https://github.com/matheushjs/ElfCudaLibs/tree/master/ElfColCnt);
 
-- Parallel Quadratic: Hybrid Hierarchical version of the PSP algorithm, using the regular quadratic-complexity procedures;
+- **Threads**: parallelization of the quadratic approach, using OpenMP to share the work among threads;
 
-- Parallel Linear: Hybrid Hierarchical version of the PSP algorithm, using the linear-complexity procedures I devised.
+- **CUDA**: efficient parallelization that we proposed for the quadratic approach, using the CUDA programming model (also better explained in the [original repository](https://github.com/matheushjs/ElfCudaLibs/tree/master/ElfColCnt)).
 
+These 4 versions of contact/collision counting were implemented with both versions of the optimization algorithm: 1) the sequential optimization algorithm, and 2) the optimization algorithm that is proposed by the authors as parallelized in the MPI programming model, in a way where different processing nodes share good predicted proteins among themselves. This caused the program to have 8 versions in total: `seq_quad`, `seq_lin`, `seq_threads`, `seq_cuda`, `mpi_quad`, `mpi_lin`, `mpi_threads`, `mpi_cuda`.
 
 <a name="proposal"></a>
 Proposal for Complexity Reduction
