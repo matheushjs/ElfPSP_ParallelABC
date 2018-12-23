@@ -50,7 +50,37 @@ These 4 versions of contact/collision counting were implemented with both versio
 Requirements
 ---
 
-For compiling all versions, you must be able to execute `gcc`, `mpicc` and `mpirun` from the command line. You don't need MPI if you just want to compile the versions `seq_lin` or `seq_quad`.
+Requirements vary depending on the program version you'd like to compile.
+
+- `seq_quad`
+  - C compiler `gcc`
+
+- `seq_lin`
+  - C compiler `gcc`
+
+- `seq_threads`
+  - C compiler `gcc` with support for the flag `-fopenmp` (most gcc comes with it by default)
+
+- `seq_cuda`
+  - C compiler `gcc`
+  - CUDA compiler `nvcc`
+
+- `mpi_quad`
+  - C compiler `gcc`
+  - MPI compiler `mpicc` (preferably from OpenMPI, as the program shows problems with MPICH)
+
+- `mpi_lin`
+  - C compiler `gcc`
+  - MPI compiler `mpicc` (preferably from OpenMPI, as the program shows problems with MPICH)
+
+- `mpi_threads`
+  - C compiler `gcc` with support for the flag `-fopenmp` (most gcc comes with it by default)
+  - MPI compiler `mpicc` (preferably from OpenMPI, as the program shows problems with MPICH)
+
+- `mpi_cuda`
+  - C compiler `gcc`
+  - CUDA compiler `nvcc`
+  - MPI compiler `mpicc` (preferably from OpenMPI, as the program shows problems with MPICH)
 
 
 <a name="compiling"></a>
