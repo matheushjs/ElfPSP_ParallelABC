@@ -2,7 +2,7 @@
 DEFS?= # e.g. -DN_HIVES=2
 UFLAGS?= # e.g. -pg -g
 
-CFLAGS=-Wall -Wpedantic -O3 -I src
+CFLAGS=-Wall -O3 -I src
 NVCCFLAGS=-O3 -I src
 LIBS=-lm
 CUDA_PRELIBS="-L/usr/local/cuda-9.0/lib64"

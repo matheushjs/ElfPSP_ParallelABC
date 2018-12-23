@@ -3,6 +3,7 @@
 
 #include "config.h"
 
+char *HP_CHAIN = (char *) "HHHHHHHHHHPPPPPPPPPPHHHHHHHHHH";
 int EPS_HH = 10;
 int EPS_HP = -3;
 int EPS_HB = -3;
@@ -26,6 +27,7 @@ void initialize_configuration(){
 	if(!fp) return;
 
 	int errSum = 0;
+	errSum += fscanf(fp, " HP_CHAIN: %ms", &HP_CHAIN);
 	errSum += fscanf(fp, " EPSILON_HYDROPHOBIC_HYDROPHOBIC: %d", &EPS_HH);
 	errSum += fscanf(fp, " EPSILON_HYDROPHOBIC_POLAR: %d", &EPS_HP);
 	errSum += fscanf(fp, " EPSILON_HYDROPHOBIC_BACKBONE: %d", &EPS_HB);
@@ -39,7 +41,7 @@ void initialize_configuration(){
 	errSum += fscanf(fp, " IDLE_LIMIT: %d", &IDLE_LIMIT);
 	errSum += fscanf(fp, " N_HIVES: %d", &N_HIVES);
 
-	if(errSum != 12){
+	if(errSum != 13){
 		fprintf(stderr, "Something went wrong while reading the configuration file '%s'.\n"
 				"Make the file is in the correct format.\n", filename);
 		exit(EXIT_FAILURE);

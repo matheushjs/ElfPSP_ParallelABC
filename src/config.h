@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 /* Check configuration.yml for documentation of the variables below */
+extern char *HP_CHAIN;
 extern int EPS_HH;
 extern int EPS_HP;
 extern int EPS_HB;

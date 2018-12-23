@@ -60,18 +60,20 @@ char validateHPChain(HPElem *hpChain){
 }
 
 int main(int argc, char *argv[]){
-	if(argc == 1){
-		fprintf(stderr, "Usage: %s HP_Sequence [num_cycles] [output file]\n", argv[0]);
+	if(argc == 2 && strcmp(argv[1], "-h") == 0){
+		fprintf(stderr, "Usage: %s [HP_Sequence] [num_cycles] [output file]\n", argv[0]);
 		return 1;
 	}
 
 	// Initialize configuration variables
 	initialize_configuration();
 
-	HPElem *hpChain = argv[1];
+	HPElem *hpChain = argc > 1 ? argv[1] : HP_CHAIN;
 	int     hpSize  = strlen(hpChain);
 	int   nCycles  = argc >= 3 ? atoi(argv[2]) : N_CYCLES;
 	char *outFile  = argc >= 4 ? argv[3]       : "output.txt";
+
+	printf("HP_CHAIN: %s\n", hpChain);
 
 	// Validate HP Chain
 	if(validateHPChain(hpChain) != 0){
