@@ -75,8 +75,6 @@ int main(int argc, char *argv[]){
 	int   nCycles  = argc >= 3 ? atoi(argv[2]) : N_CYCLES;
 	char *outFile  = argc >= 4 ? argv[3]       : "output.txt";
 
-	printf("HP_CHAIN: %s\n", hpChain);
-
 	// Validate HP Chain
 	if(validateHPChain(hpChain) != 0){
 		fprintf(stderr, "Invalid HP Chain given: %s.\n"
