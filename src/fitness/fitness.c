@@ -1,5 +1,6 @@
-#ifndef _FITNESS_RUN_C_H_
-#define _FITNESS_RUN_C_H_
+#include "fitness_private.h"
+#include "fitness.h"
+#include "gyration.h"
 
 double FitnessCalc_run(const int3d *coordsBB, const int3d *coordsSC){
 	int i;
@@ -125,5 +126,3 @@ void FitnessCalc_measures(const MovElem *chain, int *Hcontacts_p, int *collision
 	free(coordsBB);
 	free(coordsSC);
 }
-
-#endif

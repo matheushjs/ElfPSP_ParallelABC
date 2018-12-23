@@ -4,6 +4,7 @@
 /* Header to be included just by files in the fitness/ directory
  */
 #include <hpchain.h>
+#include <int3d.h>
 
 /**********************************
  *    FitnessCalc Procedures      *
@@ -48,5 +49,8 @@ typedef struct {
 	int hh, pp, hp, hb, pb, bb;
 	int collisions;
 } BeadMeasures;
+
+FitnessCalc FitnessCalc_get(); // Returns the FIT_BUNDLE of the protein being assessed.
+BeadMeasures proteinMeasures(const int3d *BBbeads, const int3d *SCbeads, const HPElem *hpChain, int hpSize);
 
 #endif

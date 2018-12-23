@@ -61,7 +61,6 @@ void FitnessCalc_cleanup(){
 
 /* Returns the FitnessCalc
  */
-static inline
 FitnessCalc FitnessCalc_get(){
 	if(FIT_BUNDLE.space3d == NULL){
 		error_print("%s", "FitnessCalc must be initialized.\n");
@@ -205,6 +204,3 @@ BeadMeasures proteinMeasures(const int3d *BBbeads, const int3d *SCbeads, const H
 
 	return retval;
 }
-
-/* Include FitnessCalc_run and FitnessCalc_measures */
-#include "fitness_run.c.h"
