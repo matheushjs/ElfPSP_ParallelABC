@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdbool.h>
 
 #include "hpchain.h"
 #include "movchain.h"
@@ -69,6 +70,7 @@ int main(int argc, char *argv[]){
 	initialize_configuration();
 
 	HPElem *hpChain = argc > 1 ? argv[1] : HP_CHAIN;
+	bool  freeChain = argc > 1 ? false   : true;
 	int     hpSize  = strlen(hpChain);
 	int   nCycles  = argc >= 3 ? atoi(argv[2]) : N_CYCLES;
 	char *outFile  = argc >= 4 ? argv[3]       : "output.txt";
@@ -103,6 +105,9 @@ int main(int argc, char *argv[]){
 		fclose(fp);
 		free(chain);
 	}
+
+	if(freeChain)
+		free(hpChain);
 
 	return 0;
 }
