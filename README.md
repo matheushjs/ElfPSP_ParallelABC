@@ -101,14 +101,18 @@ Compiling generates a lot of crumblesome files, which can be cleaned with `make 
 Usage
 ---
 
-When you run `make`, 4 binary executable files will be built in the root of the directory. Two of them are sequential programs, and 2 are parallel. The sequential ones can be run as any other executable file
+When you run `make`, many binary executable files will be built in the root of the directory. The ones that don't use MPI can be run as any other executable file
 
 ```
-$ ./seq_lin
-Usage: ./seq_lin HP_Sequence [num_cycles] [output file]
+$ ./seq_lin -h
+Usage: ./seq_lin [HP_Sequence] [num_cycles] [output file]
 ```
 
-As you can see, the sequential versions receive 3 parameters on command line, 2 of which are optional. The `HP_Sequence` is a string of H and P characters, which represent the sequence of aminoacids of the protein whose structure you want predicted. These letters stand for "hydrophobic" and "polar" aminoacids. `num_cycles` refer to the number of cycles of the optimization algorithm, Artificial Bee Colony, and more cycles should result in better predictions. The `output file` is the filename of the file to which we should write the output of the program, whose format is described later. An example of usage and output is as follows:
+As you can see, the sequential versions receive 3 optional parameters on command line, 2 of which are optional. Many input parameters can also be specified through the `configurations.yml` file in the root of the directory.
+
+The `HP_Sequence` is a string of H and P characters, which represent the sequence of aminoacids of the protein whose structure you want predicted. These letters stand for "hydrophobic" and "polar" aminoacids. `num_cycles` refer to the number of cycles of the optimization algorithm, Artificial Bee Colony, and more cycles should result in better predictions. The `output file` is the filename of the file to which we should write the output of the program, whose format is described later.
+
+An example of usage and output is as follows:
 
 ```
 $ ./seq_lin HHHPHPHHHHPHHPHPPHHHHH 10000
