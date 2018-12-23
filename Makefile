@@ -12,6 +12,12 @@ MPI_LIBS=-pthread -Wl,-rpath -Wl,/usr/lib/openmpi/lib -Wl,--enable-new-dtags -L/
 MPI_CFLAGS=-I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent -I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include \
 		-I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi
 
+# We take as a rule that if any API changes, everything should be rebuilt.
+# Same goes for the makefile itself
+HARD_DEPS=movchain.h fitness/gyration.h fitness/CUDA_header.h fitness/fitness_private.h fitness/fitness.h \
+          mtwist/mtwist.h abc_alg/abc_alg_common.h abc_alg/abc_alg.h abc_alg/elf_tree_comm.h int3d.h config.h \
+          utils.h random.h hpchain.h Makefile
+
 # This is a variable used by Makefile itself
 VPATH=src/
 
@@ -52,46 +58,40 @@ clean_all: clean
 
 
 # Explicit non-MPI object rules (WHEN ADDING NEW, MUST ADD TO $(BIN) TARGET TOO)
-main.o:               main.c  Makefile
-int3d.o:              int3d.c  int3d.h  Makefile
-measures_quadratic.o:  fitness/measures_quadratic.c fitness/gyration.h fitness/fitness.h \
-                        fitness/fitness_private.h Makefile
-measures_linear.o:     fitness/measures_linear.c fitness/gyration.h fitness/fitness.h \
-                        fitness/fitness_private.h Makefile
-hpchain.o:            hpchain.c  hpchain.h  Makefile
-movchain.o:           movchain.c  movchain.h  Makefile
-mtwist.o:             mtwist/mtwist.c  mtwist/mtwist.h  Makefile
-abc_alg_sequential.o: abc_alg/abc_alg_sequential.c abc_alg/abc_alg.h Makefile
-config.o:             config.c config.h Makefile
-abc_alg_common.o:     abc_alg/abc_alg_common.c abc_alg/abc_alg.h Makefile
-gyration.o:           fitness/gyration.c fitness/gyration.h Makefile
-fitness.o:            fitness/fitness.c fitness/fitness.h Makefile
+main.o:               main.c $(HARD_DEPS)
+int3d.o:              int3d.c $(HARD_DEPS)
+measures_quadratic.o: fitness/measures_quadratic.c $(HARD_DEPS)
+measures_linear.o:    fitness/measures_linear.c $(HARD_DEPS)
+hpchain.o:            hpchain.c $(HARD_DEPS)
+movchain.o:           movchain.c $(HARD_DEPS)
+mtwist.o:             mtwist/mtwist.c $(HARD_DEPS)
+abc_alg_sequential.o: abc_alg/abc_alg_sequential.c $(HARD_DEPS)
+config.o:             config.c $(HARD_DEPS)
+abc_alg_common.o:     abc_alg/abc_alg_common.c $(HARD_DEPS)
+gyration.o:           fitness/gyration.c $(HARD_DEPS)
+fitness.o:            fitness/fitness.c $(HARD_DEPS)
 
 
 # Explicit CUDA object rules
-CUDA_collision_count.o: fitness/CUDA_collision_count.cu fitness/CUDA_header.h \
-                          Makefile
+CUDA_collision_count.o: fitness/CUDA_collision_count.cu $(HARD_DEPS)
 	nvcc $(NVCCFLAGS) -c $(DEFS) -o "$@" "$<" $(LIBS)
 
-CUDA_contact_count.o: fitness/CUDA_contact_count.cu fitness/CUDA_header.h \
-                        Makefile
+CUDA_contact_count.o: fitness/CUDA_contact_count.cu $(HARD_DEPS)
 	nvcc $(NVCCFLAGS) -c $(DEFS) -o "$@" "$<" $(LIBS)
 
-measures_cuda.o: fitness/measures_cuda.c fitness/gyration.h fitness/fitness.h fitness/fitness_private.h \
-                  fitness/CUDA_header.h Makefile
+measures_cuda.o: fitness/measures_cuda.c $(HARD_DEPS)
 	gcc $(CUDA_PRELIBS) $(CFLAGS) -c $(DEFS) -o "$@" "$<" $(LIBS) $(CUDA_LIBS)
 
 
 # Explicit OpenMP object rules
-measures_threads.o: fitness/measures_threads.c fitness/gyration.h fitness/fitness.h \
-                     fitness/fitness_private.h Makefile
+measures_threads.o: fitness/measures_threads.c $(HARD_DEPS)
 	gcc -c $(DEFS) $(CFLAGS) -fopenmp $(UFLAGS) -o "$@" "$<" $(LIBS)
 
 # Explicit MPI object rules
-abc_alg_parallel.o: abc_alg/abc_alg_parallel.c abc_alg/abc_alg.h abc_alg/abc_alg_common.h
+abc_alg_parallel.o: abc_alg/abc_alg_parallel.c $(HARD_DEPS)
 	gcc -c $(DEFS) $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) -o "$@" "$<" $(LIBS) $(MPI_LIBS)
 
-elf_tree_comm.o: abc_alg/elf_tree_comm.c abc_alg/elf_tree_comm.h
+elf_tree_comm.o: abc_alg/elf_tree_comm.c $(HARD_DEPS)
 	gcc -c $(DEFS) $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) -o "$@" "$<" $(LIBS) $(MPI_LIBS)
 
 # Implicit rule for building objects
