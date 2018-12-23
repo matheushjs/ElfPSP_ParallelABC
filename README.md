@@ -87,12 +87,12 @@ Requirements vary depending on the program version you'd like to compile.
 Compiling
 ---
 
-If you run `make`, it will make all the 4 program versions. The versions are called `parallel_lin`, `parallel_quad`, `seq_lin` and `seq_quad`, so you can make them separately with the commands below.
+If you run `make`, it will make all the program versions. The versions are called as described in [Requirements](#requirements), so you can make them separately with the commands below.
 ```makefile
 make seq_lin
 make seq_quad
-make parallel_lin
-make parallel_quad
+make mpi_threads
+make mpi_cuda
 ```
 
 Compiling generates a lot of crumblesome files, which can be cleaned with `make clean`.
