@@ -18,28 +18,28 @@ VPATH=src/
 all:
 	make mpi_lin mpi_quad mpi_threads mpi_cuda seq_lin seq_quad seq_threads seq_cuda
 
-mpi_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
+mpi_lin: main.o int3d.o measures_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-mpi_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
+mpi_quad: main.o int3d.o measures_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-mpi_threads: main.o int3d.o fitness_threads.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
+mpi_threads: main.o int3d.o measures_threads.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc -fopenmp $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-mpi_cuda: main.o int3d.o fitness_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
+mpi_cuda: main.o int3d.o measures_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc $(CUDA_PRELIBS) $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS) $(CUDA_LIBS)
 
-seq_lin: main.o int3d.o fitness_linear.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
+seq_lin: main.o int3d.o measures_linear.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-seq_quad: main.o int3d.o fitness_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
+seq_quad: main.o int3d.o measures_quadratic.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-seq_threads: main.o int3d.o fitness_threads.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
+seq_threads: main.o int3d.o measures_threads.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc -fopenmp $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-seq_cuda: main.o int3d.o fitness_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
+seq_cuda: main.o int3d.o measures_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc $(CUDA_PRELIBS) $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(CUDA_LIBS)
 
 clean:
@@ -54,9 +54,9 @@ clean_all: clean
 # Explicit non-MPI object rules (WHEN ADDING NEW, MUST ADD TO $(BIN) TARGET TOO)
 main.o:               main.c  Makefile
 int3d.o:              int3d.c  int3d.h  Makefile
-fitness_quadratic.o:  fitness/fitness_quadratic.c fitness/gyration.h fitness/fitness.h \
+measures_quadratic.o:  fitness/measures_quadratic.c fitness/gyration.h fitness/fitness.h \
                         fitness/fitness_private.h Makefile
-fitness_linear.o:     fitness/fitness_linear.c fitness/gyration.h fitness/fitness.h \
+measures_linear.o:     fitness/measures_linear.c fitness/gyration.h fitness/fitness.h \
                         fitness/fitness_private.h Makefile
 hpchain.o:            hpchain.c  hpchain.h  Makefile
 movchain.o:           movchain.c  movchain.h  Makefile
@@ -77,13 +77,13 @@ CUDA_contact_count.o: fitness/CUDA_contact_count.cu fitness/CUDA_header.h \
                         Makefile
 	nvcc $(NVCCFLAGS) -c $(DEFS) -o "$@" "$<" $(LIBS)
 
-fitness_cuda.o: fitness/fitness_cuda.c fitness/gyration.h fitness/fitness.h fitness/fitness_private.h \
+measures_cuda.o: fitness/measures_cuda.c fitness/gyration.h fitness/fitness.h fitness/fitness_private.h \
                   fitness/CUDA_header.h Makefile
 	gcc $(CUDA_PRELIBS) $(CFLAGS) -c $(DEFS) -o "$@" "$<" $(LIBS) $(CUDA_LIBS)
 
 
 # Explicit OpenMP object rules
-fitness_threads.o: fitness/fitness_threads.c fitness/gyration.h fitness/fitness.h \
+measures_threads.o: fitness/measures_threads.c fitness/gyration.h fitness/fitness.h \
                      fitness/fitness_private.h Makefile
 	gcc -c $(DEFS) $(CFLAGS) -fopenmp $(UFLAGS) -o "$@" "$<" $(LIBS)
 
