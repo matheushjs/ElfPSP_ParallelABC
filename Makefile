@@ -5,7 +5,7 @@ UFLAGS?= # e.g. -pg -g
 CFLAGS=-Wall -O3 -I src
 NVCCFLAGS=-O3 -I src
 LIBS=-lm
-CUDA_PRELIBS="-L/usr/local/cuda-9.0/lib64"
+CUDA_PRELIBS="-L/usr/local/cuda/lib64"
 CUDA_LIBS=-lcuda -lcudart
 
 MPI_LIBS=-pthread -Wl,-rpath -Wl,/usr/lib/openmpi/lib -Wl,--enable-new-dtags -L/usr/lib/openmpi/lib -lmpi
