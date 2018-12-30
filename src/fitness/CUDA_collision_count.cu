@@ -96,22 +96,25 @@ void count_collisions_cu(float3 *coords, int *result, int nCoords, int star){
 			offset++;
 		}
 		
-		// Change blocks in shared memory when needed
-		// Unfortunately we need to synchronize threads here
-		__syncthreads();
-		
-		// Rewrite older block with earlier block
-		sCoords[threadIdx.x] = sCoords[threadIdx.x + 1024];
-		// Read new block
-		sCoords[threadIdx.x + 1024] = coords[ (baseIdx + threadIdx.x) % nCoords ];
+		// If offset == 1025, this means beads in shared memory need to be replaced
+		if(offset == 1025){
+			// Change blocks in shared memory when needed
+			// Unfortunately we need to synchronize threads here
+			__syncthreads();
+			
+			// Rewrite older block with earlier block
+			sCoords[threadIdx.x] = sCoords[threadIdx.x + 1024];
+			// Read new block
+			sCoords[threadIdx.x + 1024] = coords[ (baseIdx + threadIdx.x) % nCoords ];
 
-		// We also have to sync here
-		__syncthreads();
-		
-		// Move base index
-		baseIdx += 1024;
+			// We also have to sync here
+			__syncthreads();
+			
+			// Move base index
+			baseIdx += 1024;
 
-		offset = 1;
+			offset = 1;
+		}
 	}
 
 	// If the vector has an even number of elements

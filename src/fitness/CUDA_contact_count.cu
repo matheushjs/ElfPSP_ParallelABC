@@ -91,30 +91,32 @@ void count_contacts_cu(float3 *coords, int *result, int nCoords, int star){
 				);
 
 			// horizontalId + iterations + 1 is the element we are comparing to
-			if(diff.x*diff.x + diff.y*diff.y + diff.z*diff.z <= 1 + EPS
-			&& diff.x*diff.x + diff.y*diff.y + diff.z*diff.z >= 1 - EPS){
+			if(diff.x*diff.x + diff.y*diff.y + diff.z*diff.z == 1){
 				contacts += 1;
 			}
 
 			offset++;
 		}
-		
-		// Change blocks in shared memory when needed
-		// Unfortunately we need to synchronize threads here
-		__syncthreads();
-		
-		// Rewrite older block with earlier block
-		sCoords[threadIdx.x] = sCoords[threadIdx.x + 1024];
-		// Read new block
-		sCoords[threadIdx.x + 1024] = coords[ (baseIdx + threadIdx.x) % nCoords ];
 
-		// We also have to sync here
-		__syncthreads();
-		
-		// Move base index
-		baseIdx += 1024;
+		// If offset == 1025, this means beads in shared memory need to be replaced
+		if(offset == 1025){
+			// Change blocks in shared memory when needed
+			// Unfortunately we need to synchronize threads here
+			__syncthreads();
+			
+			// Rewrite older block with earlier block
+			sCoords[threadIdx.x] = sCoords[threadIdx.x + 1024];
+			// Read new block
+			sCoords[threadIdx.x + 1024] = coords[ (baseIdx + threadIdx.x) % nCoords ];
 
-		offset = 1;
+			// We also have to sync here
+			__syncthreads();
+			
+			// Move base index
+			baseIdx += 1024;
+
+			offset = 1;
+		}
 	}
 
 	// If the vector has an even number of elements
@@ -129,9 +131,9 @@ void count_contacts_cu(float3 *coords, int *result, int nCoords, int star){
 				buf.y - sCoords[threadIdx.x + offset].y,
 				buf.z - sCoords[threadIdx.x + offset].z
 			);
-
+		
 		// horizontalId + iterations + 1 is the element we are comparing to
-		if(diff.x*diff.x + diff.y*diff.y + diff.z*diff.z <= 1){
+		if(diff.x*diff.x + diff.y*diff.y + diff.z*diff.z == 1){
 			contacts += 1;
 		}
 		offset++;
