@@ -132,8 +132,10 @@ BeadMeasures proteinMeasures(const int3d *BBbeads, const int3d *SCbeads, const H
 		retval.collisions = count_collisions(coordsAll, sizeAll);
 	}
 
-	// Remove the trivial BB contacts
+	// Remove the trivial contacts
 	retval.bb -= (hpSize - 1);
+	retval.hb -= (sizeHH);
+	retval.pb -= (sizePP);
 
 	// Linearize amount of collisions and contacts
 	retval.hh = sqrt(retval.hh);
