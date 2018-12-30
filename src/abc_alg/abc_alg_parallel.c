@@ -400,7 +400,6 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 	HIVE_initialize();
 	HIVE_COMM.comm = hiveComm;
 	HIVE_COMM.size = nodesPerHive;
-	random_seed();
 	FitnessCalc_initialize(hpChain, hpSize);
 
 	int myHiveRank, myWorldRank;
@@ -537,7 +536,6 @@ int main(int argc, char *argv[]){
 	char filename[256];
 
 	FitnessCalc_initialize(hpChain, size);
-	random_seed();
 
 //	TEST 1
 //	Inside the Solution_perturb_relative, you must make pos2 = pos1

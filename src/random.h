@@ -5,12 +5,6 @@
 #define MT_GENERATE_CODE_IN_HEADER 0
 #include "mtwist/mtwist.h"
 
-// Seeds the mersenne twister random number generator
-static inline
-void random_seed(){
-	mt_seed();
-}
-
 // Returns a random double within [0,1)
 static inline
 double drandom_x(){

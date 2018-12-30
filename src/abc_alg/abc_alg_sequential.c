@@ -129,7 +129,6 @@ void scout_phase(int hpSize){
 MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, PredResults *results){
 	HIVE_initialize();
 	FitnessCalc_initialize(hpChain, hpSize);
-	random_seed();
 
 	int i;
 

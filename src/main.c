@@ -10,6 +10,19 @@
 #include "abc_alg/abc_alg.h"
 #include "config.h"
 
+#undef MT_GENERATE_CODE_IN_HEADER
+#define MT_GENERATE_CODE_IN_HEADER 0
+#include "mtwist/mtwist.h"
+
+void fixed_seed(int seed){
+	mt_seed32(seed);
+}
+
+// Seeds the mersenne twister random number generator
+void random_seed(){
+	mt_seed();
+}
+
 void print_3d(const MovElem * movchain, const HPElem * hpChain, int hpSize, FILE *fp){
 	int3d *coordsBB, *coordsSC;
 	MovChain_build_3d(movchain, hpSize-1, &coordsBB, &coordsSC);
@@ -74,6 +87,12 @@ int main(int argc, char *argv[]){
 	int     hpSize  = strlen(hpChain);
 	int   nCycles  = argc >= 3 ? atoi(argv[2]) : N_CYCLES;
 	char *outFile  = argc >= 4 ? argv[3]       : "output.txt";
+
+	if(RANDOM_SEED < 0){
+		random_seed();
+	} else {
+		fixed_seed(RANDOM_SEED);
+	}
 
 	// Validate HP Chain
 	if(validateHPChain(hpChain) != 0){

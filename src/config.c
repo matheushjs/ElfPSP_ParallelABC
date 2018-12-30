@@ -19,6 +19,8 @@ int IDLE_LIMIT = 100;
 
 int N_HIVES = 1;
 
+int RANDOM_SEED = -1;
+
 
 static const char filename[] = "configuration.yml";
 
@@ -40,8 +42,9 @@ void initialize_configuration(){
 	errSum += fscanf(fp, " FORAGER_RATIO: %lf", &FORAGER_RATIO);
 	errSum += fscanf(fp, " IDLE_LIMIT: %d", &IDLE_LIMIT);
 	errSum += fscanf(fp, " N_HIVES: %d", &N_HIVES);
+	errSum += fscanf(fp, " RANDOM_SEED: %d", &RANDOM_SEED);
 
-	if(errSum != 13){
+	if(errSum != 14){
 		fprintf(stderr, "Something went wrong while reading the configuration file '%s'.\n"
 				"Make the file is in the correct format.\n", filename);
 		exit(EXIT_FAILURE);

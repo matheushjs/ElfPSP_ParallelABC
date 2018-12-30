@@ -15,6 +15,7 @@ extern int COLONY_SIZE;
 extern double FORAGER_RATIO;
 extern int IDLE_LIMIT;
 extern int N_HIVES;
+extern int RANDOM_SEED;
 
 // Initializes configuration based on the configuration file.
 void initialize_configuration();
