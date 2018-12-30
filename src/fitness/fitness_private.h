@@ -10,7 +10,7 @@
  *    FitnessCalc Procedures      *
  **********************************/
 
-#define MAX_POINTERS 64 // Max number of different chunks of memory allocated
+#define MAX_MEMORY ((long int) 4*1E9) // Max total size of memory allocated
 
 /* So that memory allocated can be reused throughout calls to
  *   fitness calculation functions, we have this structure.

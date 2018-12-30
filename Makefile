@@ -22,7 +22,7 @@ HARD_DEPS=movchain.h fitness/gyration.h fitness/CUDA_header.h fitness/fitness_pr
 VPATH=src/
 
 all:
-	make mpi_lin mpi_quad mpi_threads mpi_cuda seq_lin seq_quad seq_threads seq_cuda
+	make mpi_lin mpi_quad mpi_threads mpi_lin_threads mpi_cuda seq_lin seq_quad seq_threads seq_lin_threads seq_cuda
 
 mpi_lin: main.o int3d.o measures_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
@@ -31,6 +31,9 @@ mpi_quad: main.o int3d.o measures_quadratic.o hpchain.o movchain.o mtwist.o abc_
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
 mpi_threads: main.o int3d.o measures_threads.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
+	gcc -fopenmp $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
+
+mpi_lin_threads: main.o int3d.o measures_linear_threads.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc -fopenmp $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
 mpi_cuda: main.o int3d.o measures_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
@@ -45,6 +48,9 @@ seq_quad: main.o int3d.o measures_quadratic.o hpchain.o movchain.o mtwist.o abc_
 seq_threads: main.o int3d.o measures_threads.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc -fopenmp $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
+seq_lin_threads: main.o int3d.o measures_linear_threads.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
+	gcc -fopenmp $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
+
 seq_cuda: main.o int3d.o measures_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc $(CUDA_PRELIBS) $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(CUDA_LIBS)
 
@@ -54,7 +60,7 @@ clean:
 	rm -vf *~ gmon.out
 
 clean_all: clean
-	rm -vf mpi_lin mpi_quad mpi_threads mpi_cuda seq_lin seq_quad seq_threads seq_cuda
+	rm -vf mpi_lin mpi_quad mpi_threads mpi_lin_threads mpi_cuda seq_lin seq_quad seq_threads seq_lin_threads seq_cuda
 
 
 # Explicit non-MPI object rules (WHEN ADDING NEW, MUST ADD TO $(BIN) TARGET TOO)
@@ -85,6 +91,9 @@ measures_cuda.o: fitness/measures_cuda.c $(HARD_DEPS)
 
 # Explicit OpenMP object rules
 measures_threads.o: fitness/measures_threads.c $(HARD_DEPS)
+	gcc -c $(DEFS) $(CFLAGS) -fopenmp $(UFLAGS) -o "$@" "$<" $(LIBS)
+
+measures_linear_threads.o: fitness/measures_linear_threads.c $(HARD_DEPS)
 	gcc -c $(DEFS) $(CFLAGS) -fopenmp $(UFLAGS) -o "$@" "$<" $(LIBS)
 
 # Explicit MPI object rules
