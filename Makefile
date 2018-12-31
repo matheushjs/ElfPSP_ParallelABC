@@ -22,7 +22,13 @@ HARD_DEPS=movchain.h fitness/gyration.h fitness/CUDA_header.h fitness/fitness_pr
 VPATH=src/
 
 all:
-	make mpi_lin mpi_quad mpi_threads mpi_lin_threads mpi_cuda seq_lin seq_quad seq_threads seq_lin_threads seq_cuda
+	make mpi seq
+
+mpi:
+	make mpi_lin mpi_quad mpi_threads mpi_lin_threads mpi_cuda
+
+seq:
+	make seq_lin seq_quad seq_threads seq_lin_threads seq_cuda
 
 mpi_lin: main.o int3d.o measures_linear.o hpchain.o movchain.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
