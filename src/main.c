@@ -102,19 +102,24 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
-	clock_t beg = clock();
+	clock_t clk_beg = clock();
+	struct timespec wall_beg, wall_end;
+	clock_gettime(CLOCK_REALTIME, &wall_beg);
 
 	PredResults results;
 	MovElem * chain = ABC_predict_structure(hpChain, hpSize, nCycles, &results);
 
-	double time = (clock() - beg) / (double) CLOCKS_PER_SEC;
+	double clk_time = (clock() - clk_beg) / (double) CLOCKS_PER_SEC;
+	clock_gettime(CLOCK_REALTIME, &wall_end);
+	double wall_time = (wall_end.tv_sec - wall_beg.tv_sec) + (wall_end.tv_nsec - wall_beg.tv_nsec) / (double) 1E9;
 
 	if(results.contactsH >= 0){
 		printf("Fitness: %lf\n", results.fitness);
 		printf("Hcontacts: %d\n", results.contactsH);
 		printf("Collisions: %d\n", results.collisions);
 		printf("BBGyration: %lf\n", results.bbGyration);
-		printf("Time: %lf\n", time);
+		printf("CPU_Time: %lf\n", clk_time);
+		printf("Wall_Time: %lf\n", wall_time);
 
 		FILE *fp = fopen(outFile, "w+");
 		print_3d(chain, hpChain, hpSize, fp);
