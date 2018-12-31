@@ -16,7 +16,6 @@
 #define COORD3D(V, AXIS) COORD(V.x, V.y, V.z, AXIS)
 #define COORD(X, Y, Z, AXIS) ( (Z+AXIS/2) * (AXIS*(long int)AXIS) + (Y+AXIS/2) * ((long int)AXIS) + (X+AXIS/2))
 
-static long int MEM_USED = 0;
 static FitnessCalc FIT_BUNDLE = {0, 0, NULL, 0, 0};
 
 void FitnessCalc_initialize(const HPElem * hpChain, int hpSize){
@@ -31,13 +30,8 @@ void FitnessCalc_initialize(const HPElem * hpChain, int hpSize){
 	int axisSize = (hpSize+3)*2;
 	long int spaceSize = axisSize * axisSize * (long int) axisSize;
 
-	/*
-	 * RACE CONDITION HERE
-	 */
-	MEM_USED += spaceSize;
-
 	// Failsafe for memory usage
-	if(MEM_USED > MAX_MEMORY){
+	if(spaceSize * sizeof(char) > MAX_MEMORY){
 		error_print("Will not allocate more than %g memory.\n", (double) MAX_MEMORY);
 		exit(EXIT_FAILURE);
 	}
@@ -53,9 +47,6 @@ void FitnessCalc_cleanup(){
 	// No checks will be done
 	free(FIT_BUNDLE.space3d);
 	FIT_BUNDLE.space3d = NULL;
-
-	int axisSize = FIT_BUNDLE.axisSize;
-	MEM_USED -= axisSize * axisSize * (long int) axisSize;
 }
 
 /* Returns the FitnessCalc
