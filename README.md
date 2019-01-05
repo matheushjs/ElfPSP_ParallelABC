@@ -34,17 +34,19 @@ The PSP program in question is the one described by Professor César Benítez an
 
 The authors provide 2 parallelizations of a sequential PSP program that is described very thoroughly in their article. One of the parallelizations consist in splitting the work among nodes who communicate among themselves in a master-slave fashion; the other version (called Hybrid Hierarchical) splits the work among many master-slave systems, each of which work exactly the same way as the first parallelization described, and the masters communicate among themselves periodically in a ring logical topology. I only implemented the Hybrid Hierarchical version, because it can work exactly the same way as the master-slave version if you configure its parameters accordingly.
 
-I've been investigating their proposal due to my [research project](https://mjsaldanha.com/sci-projects/1-psp-project-1/), and during analysis I found out that I could greatly improve the execution time of the program by modifying the most time-consuming procedure: **collision and contact counting**. We implemented 4 different versions of such procedures:
+I've been investigating their proposal due to my [research project](https://mjsaldanha.com/sci-projects/1-psp-project-1/), and during analysis I found out that I could greatly improve the execution time of the program by modifying the most time-consuming procedure: **collision and contact counting**. We implemented 5 different versions of such procedures:
 
 - **Quadratic**: regular, quadratic-complexity counting (for each bead, check if it collides with any subsequent beads);
 
 - **Linear**: linear-complexity algorithm that we proposed, which is better explained in the [original repository](https://github.com/matheushjs/ElfCudaLibs/tree/master/ElfColCnt);
 
-- **Threads**: parallelization of the quadratic approach, using OpenMP to share the work among threads;
+- **Quadratic Threads**: parallelization of the quadratic approach, using OpenMP to share the work among threads;
+
+- **Linear Threads**: parallelization of the linear approach, using OpenMP to share the work among threads;
 
 - **CUDA**: efficient parallelization that we proposed for the quadratic approach, using the CUDA programming model (also better explained in the [original repository](https://github.com/matheushjs/ElfCudaLibs/tree/master/ElfColCnt)).
 
-These 4 versions of contact/collision counting were implemented with both versions of the optimization algorithm: 1) the sequential optimization algorithm, and 2) the optimization algorithm that is proposed by the authors as parallelized in the MPI programming model, in a way where different processing nodes share good predicted proteins among themselves. This caused the program to have 8 versions in total: `seq_quad`, `seq_lin`, `seq_threads`, `seq_cuda`, `mpi_quad`, `mpi_lin`, `mpi_threads`, `mpi_cuda`.
+These 4 versions of contact/collision counting were implemented with both versions of the optimization algorithm: 1) the sequential optimization algorithm, and 2) the optimization algorithm that is proposed by the authors as parallelized in the MPI programming model, in a way where different processing nodes share good predicted proteins among themselves. This caused the program to have 10 versions in total: `seq_quad`, `seq_lin`, `seq_lin_threads`, `seq_threads`, `seq_cuda`, `mpi_quad`, `mpi_lin`, `mpi_lin_threads`, `mpi_threads`, `mpi_cuda`.
 
 <a name="requirements"></a>
 Requirements
@@ -57,6 +59,9 @@ Requirements vary depending on the program version you'd like to compile.
 
 - `seq_lin`
   - C compiler `gcc`
+
+- `seq_lin_threads`
+  - C compiler `gcc` with support for the flag `-fopenmp` (most gcc comes with it by default)
 
 - `seq_threads`
   - C compiler `gcc` with support for the flag `-fopenmp` (most gcc comes with it by default)
@@ -71,6 +76,10 @@ Requirements vary depending on the program version you'd like to compile.
 
 - `mpi_lin`
   - C compiler `gcc`
+  - MPI compiler `mpicc` (preferably from OpenMPI, as the program shows problems with MPICH)
+
+- `mpi_lin_threads`
+  - C compiler `gcc` with support for the flag `-fopenmp` (most gcc comes with it by default)
   - MPI compiler `mpicc` (preferably from OpenMPI, as the program shows problems with MPICH)
 
 - `mpi_threads`
@@ -95,7 +104,7 @@ make mpi_threads
 make mpi_cuda
 ```
 
-Compiling generates a lot of crumblesome files, which can be cleaned with `make clean`.
+Compiling generates a lot of cumbersome files, which can be cleaned with `make clean`.
 
 <a name="usage"></a>
 Usage
