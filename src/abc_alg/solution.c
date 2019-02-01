@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include <movelem.h>
 #include <random.h>
@@ -64,11 +65,11 @@ Solution Solution_perturb_relative(Solution perturb, Solution other, int hpSize)
 
 	char distance = elem2 - (char) elem1;
 
-	// Increase distance by 1, because the random number generation is exclusive
-	if(distance < 0) distance -= 1;
-	else distance += 1;
+	// Generate a number in [0, distance)
+	double aux = drandom_x() * (double) distance;
 
-	char delta = drandom_x() * distance;
+	// Fit the number in the discrete space [0, distance]
+	char delta = (char) round(aux);
 
 	retval.position[pos1] = MovElem_from_number(elem1 + delta);
 	retval.idle_iterations = 0;
@@ -76,6 +77,4 @@ Solution Solution_perturb_relative(Solution perturb, Solution other, int hpSize)
 
 	return retval;
 }
-
-
 

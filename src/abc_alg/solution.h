@@ -3,8 +3,8 @@
 
 #define FITNESS_MIN -1E9
 
-/** Structure that represents a solution, a protein conformation. */
-typedef struct _Solution {
+/** Encapsulates a solution, which is a protein conformation that is developed by a bee. */
+typedef struct Solution_ {
 	MovElem *position;    /**< Position of such solution */
 	double fitness;       /**< Fitness of such solution */
 	int idle_iterations;  /**< Number of iterations through which the food didn't improve */
