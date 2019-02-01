@@ -5,14 +5,20 @@
 #define MT_GENERATE_CODE_IN_HEADER 0
 #include "mtwist/mtwist.h"
 
+#ifndef RANDOM_SOURCE_CODE
+	#define RANDOM_INLINE inline
+#else
+	#define RANDOM_INLINE extern inline
+#endif
+
 // Returns a random double within [0,1)
-inline
+RANDOM_INLINE
 double drandom_x(){
 	return mt_drand();
 }
 
 // Returns an unsigned integer within [0,max)
-inline
+RANDOM_INLINE
 unsigned int urandom_max(unsigned int max){
 	return drandom_x() * max;
 }

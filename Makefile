@@ -30,34 +30,34 @@ mpi:
 seq:
 	make seq_lin seq_quad seq_threads seq_lin_threads seq_cuda
 
-mpi_lin: main.o int3d.o measures_linear.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
+mpi_lin: main.o int3d.o measures_linear.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o random.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-mpi_quad: main.o int3d.o measures_quadratic.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
+mpi_quad: main.o int3d.o measures_quadratic.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o random.o
 	gcc $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-mpi_threads: main.o int3d.o measures_threads.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
+mpi_threads: main.o int3d.o measures_threads.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o random.o
 	gcc -fopenmp $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-mpi_lin_threads: main.o int3d.o measures_linear_threads.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
+mpi_lin_threads: main.o int3d.o measures_linear_threads.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o random.o
 	gcc -fopenmp $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS)
 
-mpi_cuda: main.o int3d.o measures_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o
+mpi_cuda: main.o int3d.o measures_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_parallel.o elf_tree_comm.o config.o abc_alg_common.o gyration.o fitness.o random.o
 	gcc $(CUDA_PRELIBS) $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(MPI_LIBS) $(CUDA_LIBS)
 
-seq_lin: main.o int3d.o measures_linear.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
+seq_lin: main.o int3d.o measures_linear.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o random.o
 	gcc $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-seq_quad: main.o int3d.o measures_quadratic.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
+seq_quad: main.o int3d.o measures_quadratic.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o random.o
 	gcc $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-seq_threads: main.o int3d.o measures_threads.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
+seq_threads: main.o int3d.o measures_threads.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o random.o
 	gcc -fopenmp $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-seq_lin_threads: main.o int3d.o measures_linear_threads.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
+seq_lin_threads: main.o int3d.o measures_linear_threads.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o random.o
 	gcc -fopenmp $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS)
 
-seq_cuda: main.o int3d.o measures_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o
+seq_cuda: main.o int3d.o measures_cuda.o CUDA_collision_count.o CUDA_contact_count.o hpchain.o movchain.o movelem.o mtwist.o abc_alg_sequential.o config.o abc_alg_common.o gyration.o fitness.o random.o
 	gcc $(CUDA_PRELIBS) $(CFLAGS) $(UFLAGS) $(DEFS) $^ -o $@ $(LIBS) $(CUDA_LIBS)
 
 clean:
@@ -76,13 +76,14 @@ measures_quadratic.o: fitness/measures_quadratic.c $(HARD_DEPS)
 measures_linear.o:    fitness/measures_linear.c $(HARD_DEPS)
 hpchain.o:            hpchain.c $(HARD_DEPS)
 movchain.o:           movchain.c $(HARD_DEPS)
-movelem.o:           movelem.c $(HARD_DEPS)
+movelem.o:            movelem.c $(HARD_DEPS)
 mtwist.o:             mtwist/mtwist.c $(HARD_DEPS)
 abc_alg_sequential.o: abc_alg/abc_alg_sequential.c $(HARD_DEPS)
 config.o:             config.c $(HARD_DEPS)
 abc_alg_common.o:     abc_alg/abc_alg_common.c $(HARD_DEPS)
 gyration.o:           fitness/gyration.c $(HARD_DEPS)
 fitness.o:            fitness/fitness.c $(HARD_DEPS)
+random.o:             random.c $(HARD_DEPS)
 
 
 # Explicit CUDA object rules
