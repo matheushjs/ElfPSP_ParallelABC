@@ -16,7 +16,7 @@ MPI_CFLAGS=-I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libeve
 # Same goes for the makefile itself
 HARD_DEPS=movchain.h fitness/gyration.h fitness/CUDA_header.h fitness/fitness_private.h fitness/fitness.h \
           mtwist/mtwist.h abc_alg/abc_alg_common.h abc_alg/abc_alg.h abc_alg/elf_tree_comm.h int3d.h config.h \
-          utils.h random.h hpchain.h Makefile
+          random.h hpchain.h Makefile
 
 # This is a variable used by Makefile itself
 VPATH=src/

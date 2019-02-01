@@ -8,7 +8,6 @@
 #include <fitness/fitness.h>
 #include <random.h>
 #include <config.h>
-#include <utils.h>
 
 #include "abc_alg.h"
 #include "abc_alg_common.h"
@@ -139,8 +138,6 @@ void HIVE_add_solution(Solution sol, int index, int hpSize){
 		// Change best solution
 		Solution_free(HIVE.best);
 		HIVE.best = Solution_copy(sol, hpSize);
-
-		debug_print("Replaced best solution. Fitness: %lf\n", HIVE.best.fitness);
 	}
 }
 
@@ -170,7 +167,6 @@ bool HIVE_replace_solution(Solution alt, int index, int hpSize){
     if(alt.fitness > HIVE.sols[index].fitness){
         HIVE_remove_solution(index);
         HIVE_add_solution(alt, index, hpSize);
-        debug_print("Replaced solution %d, fitness: %lf\n", index, alt.fitness);
         return true;
     } else return false;
 }

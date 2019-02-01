@@ -1,7 +1,6 @@
 
 #include <int3d.h>
 #include <hpchain.h>
-#include <utils.h>
 #include <movchain.h>
 #include <fitness/fitness.h>
 #include <config.h>
@@ -21,7 +20,7 @@ static FitnessCalc *FIT_BUNDLE = NULL;
 
 void FitnessCalc_initialize(const HPElem * hpChain, int hpSize){
 	if(FIT_BUNDLE != NULL){
-		error_print("%s", "Double initialization.\n");
+		fprintf(stderr, "%s", "Double initialization.\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -32,7 +31,7 @@ void FitnessCalc_initialize(const HPElem * hpChain, int hpSize){
 
 	// Verify memory usage
 	if(numThreads * spaceSize * sizeof(char) > MAX_MEMORY){
-		error_print("Will not allocate more than %g memory.\n", (double) MAX_MEMORY);
+		fprintf(stderr, "Will not allocate more than %g memory.\n", (double) MAX_MEMORY);
 		exit(EXIT_FAILURE);
 	}
 
@@ -56,11 +55,9 @@ void FitnessCalc_initialize(const HPElem * hpChain, int hpSize){
 	for(i = 0; i < numThreads; i++){
 		FIT_BUNDLE[i].space3d = (void *) malloc(spaceSize * sizeof(char));
 		if(FIT_BUNDLE[i].space3d == NULL){
-			error_print("Malloc returned error when allocating memory! Attempted to allocate %lf GiB\n", numThreads * spaceSize * sizeof(char) / 1024.0 / 1024.0 / 1024.0);
+			fprintf(stderr, "Malloc returned error when allocating memory! Attempted to allocate %lf GiB\n", numThreads * spaceSize * sizeof(char) / 1024.0 / 1024.0 / 1024.0);
 		}
 	}
-
-	debug_print("Space allocated: %lf GiB\n", numThreads * spaceSize * sizeof(char) / 1024.0 / 1024.0 / 1024.0);
 }
 
 void FitnessCalc_cleanup(){
@@ -79,7 +76,7 @@ void FitnessCalc_cleanup(){
  */
 FitnessCalc FitnessCalc_get(){
 	if(FIT_BUNDLE == NULL){
-		error_print("%s", "FitnessCalc must be initialized.\n");
+		fprintf(stderr, "%s", "FitnessCalc must be initialized.\n");
 		exit(EXIT_FAILURE);
 	}
 	return FIT_BUNDLE[0];

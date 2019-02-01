@@ -24,8 +24,6 @@ static
 void forager_phase(int hpSize){
 	int i;
 
-	debug_print("%s", "BEGIN forager phase.\n");
-
 	for(i = 0; i < HIVE.nSols; i++){
 		// Change a random element of the solution
 		Solution alt = HIVE_perturb_solution(i, hpSize);
@@ -41,8 +39,6 @@ void forager_phase(int hpSize){
 			HIVE_increment_idle(i);
 		}
 	}
-
-	debug_print("%s", "END forager phase.\n");
 }
 
 /* Performs the onlooker phase of the searching cycle
@@ -56,8 +52,6 @@ static
 void onlooker_phase(int hpSize){
 	int i, j;
 	int nOnlookers = COLONY_SIZE - (COLONY_SIZE * FORAGER_RATIO);
-
-	debug_print("%s", "BEGIN onlooker phase.\n");
 
 	// Find the minimum (If no negative numbers, min should be 0)
 	double min = 0;
@@ -97,8 +91,6 @@ void onlooker_phase(int hpSize){
 			}
 		}
 	}
-
-	debug_print("%s", "END onlooker phase.\n");
 }
 
 /* Performs the scout phase of the searching cycle
@@ -110,20 +102,14 @@ static
 void scout_phase(int hpSize){
 	int i;
 
-	debug_print("%s", "BEGIN scout phase.\n");
-
 	for(i = 0; i < HIVE.nSols; i++){
 		if(HIVE.sols[i].idle_iterations > IDLE_LIMIT){
 			HIVE_remove_solution(i);
             Solution sol = Solution_random(hpSize);
             sol.fitness = FitnessCalc_run2(sol.position);
             HIVE_add_solution(sol, i, hpSize);
-
-			debug_print("Found idle solution: %d\n", i);
 		}
 	}
-
-	debug_print("%s", "END scout phase.\n");
 }
 
 MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, PredResults *results){

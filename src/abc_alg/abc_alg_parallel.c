@@ -59,7 +59,6 @@ void parallel_calculate_fitness(Solution *sols, int nSols, int hpSize){
 
 			// For verifying correctness of fitness
 			// int good = sols[i+j].fitness == FitnessCalc_run2(buff + j * (hpSize - 1));
-			// debug_print("%s\n", good ? "Correct!" : "Wrong!");
 		}
 	}
 
@@ -75,8 +74,6 @@ static
 void parallel_forager_phase(int hpSize){
 	int i;
 	Solution sols[HIVE.nSols];
-
-	debug_print("%s", "BEGIN forager phase.\n");
 
 	// Generate new random solutions
 	for(i = 0; i < HIVE.nSols; i++)
@@ -98,8 +95,6 @@ void parallel_forager_phase(int hpSize){
 			HIVE_increment_idle(i);
 		}
 	}
-
-	debug_print("%s", "END forager phase.\n");
 }
 
 /* Performs the onlooker phase of the searching cycle
@@ -117,8 +112,6 @@ void parallel_onlooker_phase(int hpSize){
 	Solution sols[nOnlookers + HIVE.nSols]; // Overestimate due to possible rounding errors.
 	int indexes[nOnlookers + HIVE.nSols];   // Stores indexes where each solution belong
 	int nSols;
-
-	debug_print("%s", "BEGIN onlooker phase.\n");
 
 	// Find the minimum (If no negative numbers, min should be 0)
 	double min = 0;
@@ -150,7 +143,6 @@ void parallel_onlooker_phase(int hpSize){
 			nSols++;
 		}
 	}
-	debug_print("Generated %d perturbations\n", nSols);
 
 	// Calculate fitness
 	parallel_calculate_fitness(sols, nSols, hpSize);
@@ -168,8 +160,6 @@ void parallel_onlooker_phase(int hpSize){
 			HIVE_increment_idle(indexes[i]);
 		}
 	}
-
-	debug_print("%s", "END onlooker phase.\n");
 }
 
 /* Performs the scout phase of the searching cycle
@@ -187,14 +177,10 @@ void parallel_scout_phase(int hpSize){
 	int indexes[HIVE.nSols];
 	int nSols = 0;
 
-	debug_print("%s", "BEGIN scout phase.\n");
-
 	// Find idle solutions
 	for(i = 0; i < HIVE.nSols; i++)
 		if(HIVE.sols[i].idle_iterations > IDLE_LIMIT)
 			indexes[nSols++] = i;
-
-	debug_print("Found %d idle solutions\n", nSols);
 
 	// Generate random solutions
 	for(i = 0; i < nSols; i++)
@@ -208,8 +194,6 @@ void parallel_scout_phase(int hpSize){
 		HIVE_remove_solution(indexes[i]);
 		HIVE_add_solution(sols[i], indexes[i], hpSize);
 	}
-
-	debug_print("%s", "END scout phase.\n");
 }
 
 /* Procedure that the slave nodes should execute.
@@ -228,16 +212,13 @@ void slave_routine(const HPElem *hpChain, int hpSize){
 		ElfTreeComm_scatter(buff, hpSize-1, MPI_CHAR, HIVE_COMM.comm);
 		if(0xFF == buff[0]){
 			free(buff);
-			debug_print("%s", "Ordered to return.\n");
 			return;
 		}
 
 		if(0xFE == buff[0]){
-			debug_print("%s", "Ordered to do nothing.\n");
 			sendBuff[0] = 0;
 		} else {
 			sendBuff[0] = FitnessCalc_run2(buff);
-			debug_print("Received work. Calculated fitness: %lf\n", sendBuff[0]);
 		}
 
 		ElfTreeComm_gather(sendBuff, 1, MPI_DOUBLE, HIVE_COMM.comm);
@@ -304,9 +285,6 @@ void ring_exchange(MPI_Comm ringComm, int hpSize){
 	int ridx2 = urandom_max(HIVE.nSols);
 	HIVE_remove_solution(ridx2);
 	HIVE_add_solution(sol2, ridx2, hpSize);
-
-	debug_print("Sent best to %d, fitness %lf\n", dest, bestSol.fitness);
-	debug_print("Received best from %d, fitness: %lf\n", src, sol1.fitness);
 }
 
 /* Gathers the best solutions among the hives in node 0.
@@ -325,8 +303,6 @@ void ring_gather(MPI_Comm ringComm, int hpSize){
 
 	// Get my solution
 	Solution sol = HIVE.best;
-
-	debug_print("My best fitness: %lf\n", sol.fitness);
 
 	// Create gather buffer
 	int maxSize = commSize * (hpSize + sizeof(double) + 32); // We overestimate a bit
@@ -348,15 +324,11 @@ void ring_gather(MPI_Comm ringComm, int hpSize){
 			position = byteCount * i;
 			MPI_Unpack(gatBuf, maxSize, &position, &fit, 1, MPI_DOUBLE, ringComm);
 
-			debug_print("Got fitness from %d: %lf\n", i, fit);
-
 			if(fit > HIVE.best.fitness){
 				HIVE.best.fitness = fit;
 				MPI_Unpack(gatBuf, maxSize, &position, HIVE.best.position, hpSize-1, MPI_CHAR, ringComm);
 			}
 		}
-
-		debug_print("Ending with best fitness: %lf\n", HIVE.best.fitness);
 	}
 
 	free(gatBuf);
@@ -413,7 +385,6 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 
 	MovElem *retval;
 	if(myHiveRank != 0){
-		debug_print("I'm a SLAVE. My rank in the hive: %d\n", myHiveRank);
 		slave_routine(hpChain, hpSize);
 		retval = NULL;
 		results->fitness = -1;
@@ -421,7 +392,6 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 		results->collisions = -1;
 		results->bbGyration = -1;
 	} else {
-		debug_print("I'm a MASTER. My rank in the hive: %d\n", myHiveRank);
 		int i;
 
 		// Generate initial random solutions
@@ -431,7 +401,6 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 		}
 
 		for(i = 0; i < nCycles; i++){
-			debug_print("BEGIN PHASE %d\n", i);
 
 			parallel_forager_phase(hpSize);
 
@@ -447,7 +416,6 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 				ring_exchange(ringComm, hpSize);
 			}
 
-			debug_print("END PHASE %d\n", i);
 			HIVE_increment_cycle();
 		}
 

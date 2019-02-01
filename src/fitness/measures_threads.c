@@ -1,7 +1,6 @@
 
 #include <int3d.h>
 #include <hpchain.h>
-#include <utils.h>
 #include <movchain.h>
 #include <fitness/fitness.h>
 #include <config.h>

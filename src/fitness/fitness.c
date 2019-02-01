@@ -19,10 +19,7 @@ double FitnessCalc_run(const int3d *coordsBB, const int3d *coordsSC){
 	H += EPS_PB * measures.pb;
 	H += EPS_BB * measures.bb;
 
-	debug_print("Contacts Energy (H): %lf\n", H);
-
 	double penalty = PENALTY_VALUE * measures.collisions;
-	debug_print("Penalty: %lf\n", penalty);
 
 // Then we calculate the mass center for H beads and P beads (we'll need for gyration)
 // Sum all coordinates for P and H beads
@@ -48,20 +45,14 @@ double FitnessCalc_run(const int3d *coordsBB, const int3d *coordsSC){
 					   sumP.y / (double) countP,
 					   sumP.z / (double) countP };
 
-	debug_print("Center for 'H': (%lf,%lf,%lf)\n", centerH.x, centerH.y, centerH.z);
-	debug_print("Center for 'P': (%lf,%lf,%lf)\n", centerP.x, centerP.y, centerP.z);
-
 // Calculate the gyration for both bead types
 	DPair RG_HP = calc_gyration_joint(coordsSC, fitCalc.hpChain, fitCalc.hpSize, centerH, centerP);
-	debug_print("Gyr Pair (H,P): (%lf, %lf)\n", RG_HP.first, RG_HP.second);
 
 // Calculate max gyration of H beads
 	double maxRG_H = fitCalc.maxGyration;
-	debug_print("maxRG_H: %lf\n", maxRG_H);
 
 // Calculate RadiusG_H
 	double radiusG_H = maxRG_H - RG_HP.first;
-	debug_print("radiusG_H: %lf\n", radiusG_H);
 
 // Calculate RadiusG_P
 	double radiusG_P;
@@ -70,7 +61,6 @@ double FitnessCalc_run(const int3d *coordsBB, const int3d *coordsSC){
 	} else {
 		radiusG_P = 1 / (1 - (RG_HP.second - RG_HP.first));
 	}
-	debug_print("radiusG_P: %lf\n", radiusG_P);
 
 	return (H - penalty) * radiusG_H * radiusG_P;
 }

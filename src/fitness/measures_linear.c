@@ -1,7 +1,6 @@
 
 #include <int3d.h>
 #include <hpchain.h>
-#include <utils.h>
 #include <movchain.h>
 #include <fitness/fitness.h>
 #include <config.h>
@@ -20,7 +19,7 @@ static FitnessCalc FIT_BUNDLE = {0, 0, NULL, 0, 0};
 
 void FitnessCalc_initialize(const HPElem * hpChain, int hpSize){
 	if(FIT_BUNDLE.space3d != NULL){
-		error_print("%s", "Double initialization.\n");
+		fprintf(stderr, "%s", "Double initialization.\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -32,15 +31,13 @@ void FitnessCalc_initialize(const HPElem * hpChain, int hpSize){
 
 	// Failsafe for memory usage
 	if(spaceSize * sizeof(char) > MAX_MEMORY){
-		error_print("Will not allocate more than %g memory.\n", (double) MAX_MEMORY);
+		fprintf(stderr, "Will not allocate more than %g memory.\n", (double) MAX_MEMORY);
 		exit(EXIT_FAILURE);
 	}
 
 	FIT_BUNDLE.axisSize = axisSize;
 	FIT_BUNDLE.space3d = malloc(spaceSize * sizeof(char));
 	FIT_BUNDLE.maxGyration = calc_max_gyration(hpChain, hpSize);
-
-	debug_print("Space allocated: %lf GiB\n", spaceSize * sizeof(char) / 1024.0 / 1024.0 / 1024.0);
 }
 
 void FitnessCalc_cleanup(){
@@ -53,7 +50,7 @@ void FitnessCalc_cleanup(){
  */
 FitnessCalc FitnessCalc_get(){
 	if(FIT_BUNDLE.space3d == NULL){
-		error_print("%s", "FitnessCalc must be initialized.\n");
+		fprintf(stderr, "%s", "FitnessCalc must be initialized.\n");
 		exit(EXIT_FAILURE);
 	}
 	return FIT_BUNDLE;

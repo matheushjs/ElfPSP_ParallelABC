@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "utils.h"
 
 #ifndef INT3D_SOURCE_FILE
 	#define INT3D_INLINE inline
