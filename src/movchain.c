@@ -3,50 +3,9 @@
 #include <string.h>
 
 #include "movchain.h"
+#include "movelem.h"
 #include "int3d.h"
 #include "random.h"
-
-const unsigned char FRONT = 0;
-const unsigned char LEFT  = 1;
-const unsigned char RIGHT = 2;
-const unsigned char UP    = 3;
-const unsigned char DOWN  = 4;
-
-static const unsigned char NUM_MOVEMENTS = 5;
-
-static const char MOVEMENT_CHARACTERS[] = {'F','L','R','U','D'};
-
-MovElem MovElem_make(unsigned char bb, unsigned char sc){
-	return (bb << 4) | sc;
-}
-
-MovElem MovElem_random(){
-	return MovElem_make(urandom_max(DOWN+1), urandom_max(DOWN+1));
-}
-
-unsigned char MovElem_getBB(MovElem elem){
-	return elem >> 4;
-}
-
-unsigned char MovElem_getSC(MovElem elem){
-	return elem & 0x0F;
-}
-
-unsigned char MovElem_to_number(MovElem elem){
-	unsigned char bb = MovElem_getBB(elem);
-	unsigned char sc = MovElem_getSC(elem);
-	return bb * NUM_MOVEMENTS + sc;
-}
-
-MovElem MovElem_from_number(unsigned char num){
-	return MovElem_make(num / NUM_MOVEMENTS, num % NUM_MOVEMENTS);
-}
-
-void MovElem_print(MovElem elem, FILE *fp){
-	unsigned char bb = elem >> 4;
-	unsigned char sc = elem & 0x0F;
-	fprintf(fp, "%c,%c", MOVEMENT_CHARACTERS[bb], MOVEMENT_CHARACTERS[sc]);
-}
 
 void MovChain_set_element(MovElem * chain, int eleIdx, unsigned char bb, unsigned char sc){
 	chain[eleIdx] = MovElem_make(bb, sc);
@@ -60,8 +19,6 @@ MovElem * MovChain_create(int size){
 
 	return chain;
 }
-
-
 
 // Given a predecessor vector and a movement, applies such
 //   movement in the predecessor vector and returns the result.

@@ -6,13 +6,13 @@
 #include "mtwist/mtwist.h"
 
 // Returns a random double within [0,1)
-static inline
+inline
 double drandom_x(){
 	return mt_drand();
 }
 
 // Returns an unsigned integer within [0,max)
-static inline
+inline
 unsigned int urandom_max(unsigned int max){
 	return drandom_x() * max;
 }
