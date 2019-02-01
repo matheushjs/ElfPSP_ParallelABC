@@ -3,7 +3,7 @@
 
 #include "hpchain.h"
 
-HPElem * HPChain_read(FILE *fp){
+HPElem *HPChain_read(FILE *fp){
 	char buffer[2001];
 	char *chain;
 	int retval;
@@ -18,16 +18,3 @@ HPElem * HPChain_read(FILE *fp){
 
 	return chain;
 }
-
-/* DEBUGGING PROCEDURES
-
-int main(void){
-	HPElem * chain = HPChain_read(stdin);
-
-	if(chain != NULL)
-		printf("%s\n", chain);
-
-	free(chain);
-	return 0;
-}
-*/

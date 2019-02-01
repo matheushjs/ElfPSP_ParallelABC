@@ -15,7 +15,7 @@
 typedef unsigned char MovElem;
 
 /** Constants for making MovElem elements */
-enum {
+enum _MovUnits {
 	FRONT = 0,
 	LEFT  = 1,
 	RIGHT = 2,
@@ -29,15 +29,17 @@ enum {
 	#define MOVELEM_INLINE extern inline
 #endif
 
-/** Returns a MovElem whose value corresponds to a movement where 'bb' is applied to the backbone
- *   and 'sc' is applied to the side chain.
+/** Creates a MovElem.
+ *
+ * \param bb The backbone element (e.g. FRONT, LEFT)
+ * \param sc The side-chain element (e.g. FRONT, LEFT)
  */
 MOVELEM_INLINE
 MovElem MovElem_make(unsigned char bb, unsigned char sc){
 	return (bb << 4) | sc;
 }
 
-/** Returns a uniformly random MovElem */
+/** Returns a uniformly random MovElem. */
 MOVELEM_INLINE
 MovElem MovElem_random(){
 	return MovElem_make(urandom_max(DOWN+1), urandom_max(DOWN+1));

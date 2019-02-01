@@ -11,13 +11,13 @@
 	#define RANDOM_INLINE extern inline
 #endif
 
-// Returns a random double within [0,1)
+/** Returns a random double within [0,1) */
 RANDOM_INLINE
 double drandom_x(){
 	return mt_drand();
 }
 
-// Returns an unsigned integer within [0,max)
+/** Returns an unsigned integer within [0,max) */
 RANDOM_INLINE
 unsigned int urandom_max(unsigned int max){
 	return drandom_x() * max;

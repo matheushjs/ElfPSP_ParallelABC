@@ -68,6 +68,9 @@ clean:
 clean_all: clean
 	rm -vf mpi_lin mpi_quad mpi_threads mpi_lin_threads mpi_cuda seq_lin seq_quad seq_threads seq_lin_threads seq_cuda
 
+docs:
+	doxygen Doxyfile
+
 
 # Explicit non-MPI object rules (WHEN ADDING NEW, MUST ADD TO $(BIN) TARGET TOO)
 main.o:               main.c $(HARD_DEPS)

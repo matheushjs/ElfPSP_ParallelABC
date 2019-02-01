@@ -5,14 +5,15 @@
 #include <hpchain.h>
 #include <config.h>
 
+/** Structure for returning prediction results to the user. */
 typedef struct _PredResults {
-	double fitness;    // Fitness of the predicted protein
-	int contactsH;     // Number of H contacts
-	int collisions;    // Number of collisions among beads
-	double bbGyration; // Gyration radius for the backbone beads
+	double fitness;    /**< Fitness of the predicted protein */
+	int contactsH;     /**< Number of H contacts */
+	int collisions;    /**< Number of collisions among beads */
+	double bbGyration; /**< Gyration radius for the backbone beads */
 } PredResults;
 
-/* Given a protein in the HPElem * format, searches the 3D conformation with minimal energy.
+/** Given a protein in the HPElem * format, searches the 3D conformation with minimal energy.
  * 'nCycles' is the number of cycles desired for the algorithm to run.
  *
  * Returns a MovElem *, which is a sequence of movements of the backbone of the protein,

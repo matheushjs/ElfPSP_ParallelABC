@@ -11,15 +11,14 @@
 	#define INT3D_INLINE extern inline
 #endif
 
-
-/* Type for representing a tridimensional coordinate.
- */
+/** Type for representing a tridimensional coordinate. */
 typedef struct _int3d {
-	int x;
-	int y;
-	int z;
+	int x; /**< Coordinate x. */
+	int y; /**< Coordinate y. */
+	int z; /**< Coordinate z. */
 } int3d;
 
+/** Creates an int3d. */
 INT3D_INLINE
 int3d int3d_make(int x, int y, int z){
 	int3d num;
@@ -29,6 +28,7 @@ int3d int3d_make(int x, int y, int z){
 	return num;
 }
 
+/** Adds two int3d objects. */
 INT3D_INLINE
 int3d int3d_add(int3d a, int3d b){
 	int3d res;
@@ -38,6 +38,7 @@ int3d int3d_add(int3d a, int3d b){
 	return res;
 }
 
+/** Verifies if `a` and `b` are within a distance of exactly 1 from each other. */
 INT3D_INLINE
 bool int3d_isDist1(int3d a, int3d b){
 	int dx = abs(a.x - b.x);
@@ -47,6 +48,7 @@ bool int3d_isDist1(int3d a, int3d b){
 	return sum == 1 ? true : false;
 }
 
+/** Verifies if `a` and `b` are equal. */
 INT3D_INLINE
 bool int3d_equal(int3d a, int3d b){
 	if(a.x != b.x || a.y != b.y || a.z != b.z)
@@ -54,6 +56,7 @@ bool int3d_equal(int3d a, int3d b){
 	return true;
 }
 
+/** Prints the given int3d object, without placing a newline. */
 INT3D_INLINE
 void int3d_print(int3d a, FILE *fp){
 	fprintf(fp, "%d,%d,%d", a.x, a.y, a.z);

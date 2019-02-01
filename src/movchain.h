@@ -3,22 +3,21 @@
 
 #include <stdio.h>
 #include "movelem.h"
+#include "int3d.h"
 
-/* Changes the given 'chain' in position 'eleIdx'.
+/** Changes the given 'chain' in position 'eleIdx'.
  * The element in that position becomes set with movement 'bb' for the
  *   backbone and 'sc' for the side chain.
  */
 void MovChain_set_element(MovElem * chain, int eleIdx, unsigned char bb, unsigned char sc);
 
-/* Creates a chain of movements with 'size' bytes.
+/** Creates a chain of movements with 'size' bytes.
  * Each byte carries 4 bits (MSB) representing backbone movement, and 4 bits (LSB) for sidechain movement.
  * Everything is initialized to FRONT-right
  */
 MovElem * MovChain_create(int size);
 
-#include "int3d.h"
-
-/* Takes a chain of movements and returns the spatial position of BB and SC beads over the 3D space.
+/** Takes a chain of movements and returns the spatial position of BB and SC beads over the 3D space.
  * 'coordsBB_p' and 'coordsSC_p' are pointers to where we should store, respectively, the coordinates for
  *    the backbone beads and the side chain beads.
  */
