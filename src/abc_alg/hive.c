@@ -10,7 +10,7 @@
 #include <config.h>
 
 #include "abc_alg.h"
-#include "abc_alg_common.h"
+#include "hive.h"
 #include "solution.h"
 
 // Our global HIVE

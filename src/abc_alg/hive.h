@@ -1,5 +1,5 @@
-#ifndef _ABC_ALG_COMMON_
-#define _ABC_ALG_COMMON_
+#ifndef _HIVE_H_
+#define _HIVE_H_
 
 #include "solution.h"
 

@@ -10,7 +10,7 @@
 
 #include "elf_tree_comm.h"
 #include "abc_alg.h"
-#include "abc_alg_common.h"
+#include "hive.h"
 
 
 /******************************************/
