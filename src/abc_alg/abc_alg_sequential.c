@@ -24,7 +24,7 @@ static
 void forager_phase(int hpSize){
 	int i;
 
-	for(i = 0; i < HIVE.nSols; i++){
+	for(i = 0; i < HIVE_nSols(); i++){
 		// Change a random element of the solution
 		Solution alt = HIVE_perturb_solution(i, hpSize);
         alt.fitness = FitnessCalc_run2(alt.position);
@@ -55,21 +55,21 @@ void onlooker_phase(int hpSize){
 
 	// Find the minimum (If no negative numbers, min should be 0)
 	double min = 0;
-	for(i = 0; i < HIVE.nSols; i++){
-		if(HIVE.sols[i].fitness < min)
-			min = HIVE.sols[i].fitness;
+	for(i = 0; i < HIVE_nSols(); i++){
+		if(HIVE_solution(i)->fitness < min)
+			min = HIVE_solution(i)->fitness;
 	}
 
 	// Sum the 'normalized' fitnesses
 	double sum = 0;
-	for(i = 0; i < HIVE.nSols; i++){
-		sum += HIVE.sols[i].fitness - min;
+	for(i = 0; i < HIVE_nSols(); i++){
+		sum += HIVE_solution(i)->fitness - min;
 	}
 
 	// For each solution, count the number of onlooker bees that should perturb it
 	//   then perturb it.
-	for(i = 0; i < HIVE.nSols; i++){
-		double norm = HIVE.sols[i].fitness - min;
+	for(i = 0; i < HIVE_nSols(); i++){
+		double norm = HIVE_solution(i)->fitness - min;
 		double prob = norm / sum; // The probability of perturbing such solution
 
 		// Count number of onlookers that should perturb such solution
@@ -102,8 +102,8 @@ static
 void scout_phase(int hpSize){
 	int i;
 
-	for(i = 0; i < HIVE.nSols; i++){
-		if(HIVE.sols[i].idle_iterations > IDLE_LIMIT){
+	for(i = 0; i < HIVE_nSols(); i++){
+		if(HIVE_solution(i)->idle_iterations > IDLE_LIMIT){
 			HIVE_remove_solution(i);
             Solution sol = Solution_random(hpSize);
             sol.fitness = FitnessCalc_run2(sol.position);
@@ -119,7 +119,7 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 	int i;
 
 	// Generate initial random solutions
-	for(i = 0; i < HIVE.nSols; i++)
+	for(i = 0; i < HIVE_nSols(); i++)
 		HIVE_add_solution(Solution_random(hpSize), i, hpSize);
 
 	for(i = 0; i < nCycles; i++){
@@ -133,11 +133,11 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 		scout_phase(hpSize);
 	}
 
-	MovElem * retval = HIVE.best.position;
-	HIVE.best.position = NULL;
+	MovElem * retval = HIVE_best_sol()->position;
+	HIVE_nullify_best();
 
 	if(results){
-		results->fitness = HIVE.best.fitness;
+		results->fitness = HIVE_best_sol()->fitness;
 		FitnessCalc_measures(retval, &results->contactsH, &results->collisions, &results->bbGyration);
 	}
 

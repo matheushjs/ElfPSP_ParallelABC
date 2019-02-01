@@ -3,27 +3,35 @@
 
 #include "solution.h"
 
-struct _HIVE {
-	Solution *sols; // Set of solutions currently held by the forager bees
-	int nSols;      // Number of such solutions
-
-	int cycle;      // Keeps track of what cycle we are running
-
-	Solution best;  // Best solution found so far
-};
-extern struct _HIVE HIVE;
-
-// Initializes the global HIVE object
+/** Initializes the global HIVE object. */
 void HIVE_initialize();
 
-// Frees memory allocated in HIVE
-// Does not free the best solution
+/** Frees memory allocated in HIVE.
+ * Does not free the best solution */
 void HIVE_destroy();
 
-// Tells the HIVE to increment one cycle in the cycle counter
+/** Returns the number of solutions in the hive. */
+int HIVE_nSols();
+
+/** Returns the number of cycles elapsed within the hive. */
+int HIVE_cycle();
+
+/** Returns the vector of solutions within the hive. */
+Solution *HIVE_solutions();
+
+/** Returns a specific solution. */
+Solution *HIVE_solution(int idx);
+
+/** Returns a pointer to the best solution found so far in the hive. */
+Solution *HIVE_best_sol();
+
+/** Nullifies the best solution, without freeing it. */
+void HIVE_nullify_best();
+
+/** Tells the HIVE to increment one cycle in the cycle counter */
 void HIVE_increment_cycle();
 
-/* Adds solution 'sol' as the index-th solution of the HIVE.
+/** Adds solution 'sol' as the index-th solution of the HIVE.
  * No deep copy is made.
  *
  * Also checks the fitness of 'sol' and replaces the best solution in the HIVE if needed
@@ -31,13 +39,13 @@ void HIVE_increment_cycle();
 */
 void HIVE_add_solution(Solution sol, int index, int hpSize);
 
-// Removes a solution from the HIVE, freeing the memory allocated for it.
+/** Removes a solution from the HIVE, freeing the memory allocated for it. */
 void HIVE_remove_solution(int index);
 
-// Increments the idle_iterations of the solution desired.
+/** Increments the idle_iterations of the solution desired. */
 void HIVE_increment_idle(int index);
 
-/* Causes a minor variation in the solution at given index.
+/** Causes a minor variation in the solution at given index.
  *
  * The Solution with index 'index' is SOL1, we take a random SOL2 and a random
  *   spot SPOT in the Solutions' movement chain.
@@ -46,7 +54,7 @@ void HIVE_increment_idle(int index);
  */
 Solution HIVE_perturb_solution(int index, int hpSize);
 
-/* The current Solution with index 'index' is SOL1.
+/** The current Solution with index 'index' is SOL1.
  * Checks if 'alt' has a better fitness, and if that is so, replaces SOL1 with 'alt'.
  * Returns 'true' if replacement happened.
  *

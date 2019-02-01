@@ -73,17 +73,17 @@ void parallel_calculate_fitness(Solution *sols, int nSols, int hpSize){
 static
 void parallel_forager_phase(int hpSize){
 	int i;
-	Solution sols[HIVE.nSols];
+	Solution sols[HIVE_nSols()];
 
 	// Generate new random solutions
-	for(i = 0; i < HIVE.nSols; i++)
+	for(i = 0; i < HIVE_nSols(); i++)
 		sols[i] = HIVE_perturb_solution(i, hpSize);
 
 	// Calculate fitnesses
-	parallel_calculate_fitness(sols, HIVE.nSols, hpSize);
+	parallel_calculate_fitness(sols, HIVE_nSols(), hpSize);
 
 	// Replace solutions in the HIVE
-	for(i = 0; i < HIVE.nSols; i++){
+	for(i = 0; i < HIVE_nSols(); i++){
 		bool replaced = HIVE_replace_solution(sols[i], i, hpSize);
 
 		// If wasn't a better solution
@@ -109,28 +109,28 @@ void parallel_onlooker_phase(int hpSize){
 	int i, j;
 	int nOnlookers = COLONY_SIZE - (COLONY_SIZE * FORAGER_RATIO);
 
-	Solution sols[nOnlookers + HIVE.nSols]; // Overestimate due to possible rounding errors.
-	int indexes[nOnlookers + HIVE.nSols];   // Stores indexes where each solution belong
+	Solution sols[nOnlookers + HIVE_nSols()]; // Overestimate due to possible rounding errors.
+	int indexes[nOnlookers + HIVE_nSols()];   // Stores indexes where each solution belong
 	int nSols;
 
 	// Find the minimum (If no negative numbers, min should be 0)
 	double min = 0;
-	for(i = 0; i < HIVE.nSols; i++){
-		if(HIVE.sols[i].fitness < min)
-			min = HIVE.sols[i].fitness;
+	for(i = 0; i < HIVE_nSols(); i++){
+		if(HIVE_solution(i)->fitness < min)
+			min = HIVE_solution(i)->fitness;
 	}
 
 	// Sum the 'normalized' fitnesses
 	double sum = 0;
-	for(i = 0; i < HIVE.nSols; i++){
-		sum += HIVE.sols[i].fitness - min;
+	for(i = 0; i < HIVE_nSols(); i++){
+		sum += HIVE_solution(i)->fitness - min;
 	}
 
 	// For each solution, count the number of onlooker bees that should perturb it
 	//   then add perturbed solutions into the sols vector
 	nSols = 0;
-	for(i = 0; i < HIVE.nSols; i++){
-		double norm = HIVE.sols[i].fitness - min;
+	for(i = 0; i < HIVE_nSols(); i++){
+		double norm = HIVE_solution(i)->fitness - min;
 		double prob = norm / sum; // The probability of perturbing such solution
 
 		// Count number of onlookers that should perturb such solution
@@ -173,13 +173,13 @@ static
 void parallel_scout_phase(int hpSize){
 	int i;
 
-	Solution sols[HIVE.nSols];
-	int indexes[HIVE.nSols];
+	Solution sols[HIVE_nSols()];
+	int indexes[HIVE_nSols()];
 	int nSols = 0;
 
 	// Find idle solutions
-	for(i = 0; i < HIVE.nSols; i++)
-		if(HIVE.sols[i].idle_iterations > IDLE_LIMIT)
+	for(i = 0; i < HIVE_nSols(); i++)
+		if(HIVE_solution(i)->idle_iterations > IDLE_LIMIT)
 			indexes[nSols++] = i;
 
 	// Generate random solutions
@@ -238,8 +238,8 @@ void ring_exchange(MPI_Comm ringComm, int hpSize){
 	if(commSize == 1) return;
 
 	// Get solutions to send
-	Solution randSol = HIVE.sols[urandom_max(HIVE.nSols)];
-	Solution bestSol = HIVE.best;
+	Solution randSol = HIVE_solutions()[urandom_max(HIVE_nSols())];
+	Solution bestSol = *HIVE_best_sol();
 
 	// Create input/output buffers
 	int maxSize = 2 * hpSize + sizeof(double) * 2 + 32; // We overestimate a bit
@@ -278,11 +278,11 @@ void ring_exchange(MPI_Comm ringComm, int hpSize){
 	MPI_Unpack(inBuf, maxSize, &position, &sol2.fitness, 1, MPI_DOUBLE, ringComm);
 	MPI_Unpack(inBuf, maxSize, &position, sol2.position, hpSize-1, MPI_CHAR, ringComm);
 
-	int ridx1 = urandom_max(HIVE.nSols);
+	int ridx1 = urandom_max(HIVE_nSols());
 	HIVE_remove_solution(ridx1);
 	HIVE_add_solution(sol1, ridx1, hpSize);
 
-	int ridx2 = urandom_max(HIVE.nSols);
+	int ridx2 = urandom_max(HIVE_nSols());
 	HIVE_remove_solution(ridx2);
 	HIVE_add_solution(sol2, ridx2, hpSize);
 }
@@ -302,7 +302,7 @@ void ring_gather(MPI_Comm ringComm, int hpSize){
 	if(commSize == 1) return;
 
 	// Get my solution
-	Solution sol = HIVE.best;
+	Solution sol = *HIVE_best_sol();
 
 	// Create gather buffer
 	int maxSize = commSize * (hpSize + sizeof(double) + 32); // We overestimate a bit
@@ -324,9 +324,9 @@ void ring_gather(MPI_Comm ringComm, int hpSize){
 			position = byteCount * i;
 			MPI_Unpack(gatBuf, maxSize, &position, &fit, 1, MPI_DOUBLE, ringComm);
 
-			if(fit > HIVE.best.fitness){
-				HIVE.best.fitness = fit;
-				MPI_Unpack(gatBuf, maxSize, &position, HIVE.best.position, hpSize-1, MPI_CHAR, ringComm);
+			if(fit > HIVE_best_sol()->fitness){
+				HIVE_best_sol()->fitness = fit;
+				MPI_Unpack(gatBuf, maxSize, &position, HIVE_best_sol()->position, hpSize-1, MPI_CHAR, ringComm);
 			}
 		}
 	}
@@ -395,7 +395,7 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 		int i;
 
 		// Generate initial random solutions
-		for(i = 0; i < HIVE.nSols; i++){
+		for(i = 0; i < HIVE_nSols(); i++){
 			Solution sol = Solution_random(hpSize);
 			HIVE_add_solution(sol, i, hpSize);
 		}
@@ -421,11 +421,12 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 
 		ring_gather(ringComm, hpSize);
 
-		retval = HIVE.best.position;
-		HIVE.best.position = NULL;
+		retval = HIVE_best_sol()->position;
+		double fit = HIVE_best_sol()->fitness;
+		HIVE_nullify_best();
 
 		if(results && myWorldRank == 0){
-			results->fitness = HIVE.best.fitness;
+			results->fitness = fit;
 			FitnessCalc_measures(retval, &results->contactsH, &results->collisions, &results->bbGyration);
 		}
 

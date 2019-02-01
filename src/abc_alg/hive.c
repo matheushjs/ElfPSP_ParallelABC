@@ -13,7 +13,15 @@
 #include "hive.h"
 #include "solution.h"
 
-// Our global HIVE
+/** Encapsulates a hive that develops a number of solutions using a number of bees. */
+struct _HIVE {
+	Solution *sols; /**< Set of solutions currently held by the forager bees */
+	int nSols;      /**< Number of such solutions */
+	int cycle;      /**< Keeps track of what cycle we are running */
+	Solution best;  /**< Best solution found so far */
+};
+
+/** Our global HIVE */
 struct _HIVE HIVE;
 
 /******************************************/
@@ -44,6 +52,30 @@ void HIVE_destroy(){
 		Solution_free(HIVE.sols[i]);
 	}
 	free(HIVE.sols);
+}
+
+int HIVE_nSols(){
+	return HIVE.nSols;
+}
+
+int HIVE_cycle(){
+	return HIVE.cycle;
+}
+
+Solution *HIVE_solutions(){
+	return HIVE.sols;
+}
+
+Solution *HIVE_solution(int idx){
+	return &HIVE.sols[idx];
+}
+
+Solution *HIVE_best_sol(){
+	return &HIVE.best;
+}
+
+void HIVE_nullify_best(){
+	HIVE.best.position = NULL;
 }
 
 // Documented in header file
