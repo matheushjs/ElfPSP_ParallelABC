@@ -27,16 +27,7 @@ void forager_phase(int hpSize){
 	for(i = 0; i < HIVE_nSols(); i++){
 		// Change a random element of the solution
 		Solution alt = HIVE_perturb_solution(i, hpSize);
-		bool replaced = HIVE_try_replace_solution(alt, i, hpSize);
-
-		// If 'alt' wasn't a better solution
-		if(replaced == false){
-			// Free memory resources
-			Solution_free(alt);
-
-			// Increment idle iterations on the original solution
-			HIVE_increment_idle(i);
-		}
+		HIVE_try_replace_solution(alt, i, hpSize);
 	}
 }
 
@@ -79,16 +70,7 @@ void onlooker_phase(int hpSize){
 		for(j = 0; j < nIter; j++){
 			// Change a random element of the solution
 			Solution alt = HIVE_perturb_solution(i, hpSize);
-			bool replaced = HIVE_try_replace_solution(alt, i, hpSize);
-
-			// If 'alt' wasn't a better solution
-			if(replaced == false){
-				// Free memory resources
-				Solution_free(alt);
-
-				// Increment idle iterations on the original solution
-				HIVE_increment_idle(i);
-			}
+			HIVE_try_replace_solution(alt, i, hpSize);
 		}
 	}
 }
@@ -116,19 +98,9 @@ Solution ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 	FitnessCalc_initialize(hpChain, hpSize);
 
 	int i;
-
-	// Generate initial random solutions
-	for(i = 0; i < HIVE_nSols(); i++)
-		HIVE_add_solution(Solution_random(hpSize), i, hpSize);
-
 	for(i = 0; i < nCycles; i++){
 		forager_phase(hpSize);
-
 		onlooker_phase(hpSize);
-
-		/* For each solution, check its idle_iterations
-		 * If it exceeded the limit, replace it with a new random solution
-		 */
 		scout_phase(hpSize);
 	}
 

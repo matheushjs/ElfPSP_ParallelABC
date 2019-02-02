@@ -80,18 +80,8 @@ void parallel_forager_phase(int hpSize){
 	parallel_calculate_fitness(sols, HIVE_nSols(), hpSize);
 
 	// Replace solutions in the HIVE
-	for(i = 0; i < HIVE_nSols(); i++){
-		bool replaced = HIVE_try_replace_solution(sols[i], i, hpSize);
-
-		// If wasn't a better solution
-		if(replaced == false){
-			// Free memory resources
-			Solution_free(sols[i]);
-
-			// Increment idle iterations on the original solution
-			HIVE_increment_idle(i);
-		}
-	}
+	for(i = 0; i < HIVE_nSols(); i++)
+		HIVE_try_replace_solution(sols[i], i, hpSize);
 }
 
 /* Performs the onlooker phase of the searching cycle
@@ -146,18 +136,8 @@ void parallel_onlooker_phase(int hpSize){
 	parallel_calculate_fitness(sols, nSols, hpSize);
 
 	// Replace solutions where due
-	for(i = 0; i < nSols; i++){
-		bool replaced = HIVE_try_replace_solution(sols[i], indexes[i], hpSize);
-
-		// If wasn't a better solution
-		if(replaced == false){
-			// Free memory resources
-			Solution_free(sols[i]);
-
-			// Increment idle iterations on the original solution
-			HIVE_increment_idle(indexes[i]);
-		}
-	}
+	for(i = 0; i < nSols; i++)
+		HIVE_try_replace_solution(sols[i], indexes[i], hpSize);
 }
 
 /* Performs the scout phase of the searching cycle
@@ -381,12 +361,6 @@ Solution ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 		results->bbGyration = -1;
 	} else {
 		int i;
-
-		// Generate initial random solutions
-		for(i = 0; i < HIVE_nSols(); i++){
-			Solution sol = Solution_random(hpSize);
-			HIVE_add_solution(sol, i, hpSize);
-		}
 
 		for(i = 0; i < nCycles; i++){
 

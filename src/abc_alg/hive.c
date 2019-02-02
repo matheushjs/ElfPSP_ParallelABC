@@ -83,18 +83,6 @@ void HIVE_increment_cycle(){
 }
 
 // Documented in header file
-void HIVE_add_solution(Solution sol, int index, int hpSize){
-	HIVE.sols[index] = sol;
-
-	// Replace best solution if needed
-	if(sol.fitness > HIVE.best.fitness){
-		// Change best solution
-		Solution_free(HIVE.best);
-		HIVE.best = Solution_copy(sol, hpSize);
-	}
-}
-
-// Documented in header file
 void HIVE_increment_idle(int index){
 	Solution_inc_idle_iterations(&HIVE.sols[index]);
 }
@@ -110,15 +98,23 @@ Solution HIVE_perturb_solution(int index, int hpSize){
 	return Solution_perturb_relative(HIVE.sols[index], HIVE.sols[other], hpSize);
 }
 
-bool HIVE_try_replace_solution(Solution alt, int index, int hpSize){
+void HIVE_try_replace_solution(Solution alt, int index, int hpSize){
 	double altFit = Solution_fitness(alt);
 	double curFit = Solution_fitness(HIVE.sols[index]);
 
     if(altFit > curFit){
 		Solution_free(HIVE.sols[index]);
 		HIVE.sols[index] = alt;
-        return true;
-    } else return false;
+
+		double bestFit = Solution_fitness(HIVE.best);
+		if(altFit > bestFit){
+			Solution_free(HIVE.best);
+			HIVE.best = Solution_copy(alt, hpSize);
+		}
+    } else {
+		Solution_free(alt);
+		Solution_inc_idle_iterations(&HIVE.sols[index]);
+	}
 }
 
 void HIVE_force_replace_solution(Solution alt, int index){
