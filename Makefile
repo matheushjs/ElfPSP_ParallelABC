@@ -15,7 +15,7 @@ MPI_CFLAGS=-I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libeve
 # We take as a rule that if any API changes, everything should be rebuilt.
 # Same goes for the makefile itself
 HARD_DEPS=movchain.h fitness/gyration.h fitness/CUDA_header.h fitness/fitness_private.h fitness/fitness.h \
-          mtwist/mtwist.h abc_alg/hive.h abc_alg/abc_alg.h abc_alg/elf_tree_comm.h int3d.h config.h \
+          mtwist/mtwist.h abc_alg/hive.h abc_alg/abc_alg.h elf_tree_comm/elf_tree_comm.h int3d.h config.h \
           solution/solution.h solution/solution_mpi.h solution/solution_structure_private.h \
           movelem.h random.h hpchain.h Makefile
 
@@ -113,7 +113,7 @@ measures_linear_threads.o: fitness/measures_linear_threads.c $(HARD_DEPS)
 abc_alg_parallel.o: abc_alg/abc_alg_parallel.c $(HARD_DEPS)
 	gcc -c $(DEFS) $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) -o "$@" "$<" $(LIBS) $(MPI_LIBS)
 
-elf_tree_comm.o: abc_alg/elf_tree_comm.c $(HARD_DEPS)
+elf_tree_comm.o: elf_tree_comm/elf_tree_comm.c $(HARD_DEPS)
 	gcc -c $(DEFS) $(CFLAGS) $(MPI_CFLAGS) $(UFLAGS) -o "$@" "$<" $(LIBS) $(MPI_LIBS)
 
 solution_mpi.o: solution/solution_mpi.c $(HARD_DEPS)
