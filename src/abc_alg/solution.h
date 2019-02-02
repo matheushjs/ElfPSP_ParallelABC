@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 
+#include <fitness/fitness.h>
 #include <movelem.h>
 #include <random.h>
 
@@ -18,8 +19,8 @@
 
 /** Encapsulates a solution, which is a protein conformation that is developed by a bee. */
 typedef struct Solution_ {
-	MovElem *position;    /**< Position of such solution */
-	double fitness;       /**< Fitness of such solution */
+	MovElem *chain;       /**< Position of such solution */
+	double fitness;       /**< Fitness of such solution. Calculated lazily. */
 	int idle_iterations;  /**< Number of iterations through which the food didn't improve */
 } Solution;
 
@@ -27,7 +28,9 @@ typedef struct Solution_ {
 SOLUTION_INLINE
 Solution Solution_blank(int hpSize){
 	Solution retval;
-	retval.position = malloc(sizeof(MovElem) * (hpSize - 1));
+	retval.chain = malloc(sizeof(MovElem) * (hpSize - 1));
+	retval.fitness = FITNESS_MIN;
+	retval.idle_iterations = 0;
 	return retval;
 }
 
@@ -40,8 +43,8 @@ Solution Solution_copy(Solution sol, int hpSize){
 
 	int chainSize = hpSize - 1;
 
-	retval.position = malloc(sizeof(MovElem) * chainSize);
-	memcpy(retval.position, sol.position, sizeof(MovElem) * chainSize);
+	retval.chain = malloc(sizeof(MovElem) * chainSize);
+	memcpy(retval.chain, sol.chain, sizeof(MovElem) * chainSize);
 
 	return retval;
 }
@@ -49,11 +52,11 @@ Solution Solution_copy(Solution sol, int hpSize){
 /** Frees memory allocated for given solution */
 SOLUTION_INLINE
 void Solution_free(Solution sol){
-	free(sol.position);
+	free(sol.chain);
 }
 
 /** Returns a Solution whose movement chain is uniformly random.
- * The returned Solution has its idle_positions set to 0.
+ * The returned Solution has its idle_iterations set to 0.
  * The returned Solution won't have its fitness calculated.
  */
 SOLUTION_INLINE
@@ -64,10 +67,10 @@ Solution Solution_random(int hpSize){
 	sol.idle_iterations = 0;
 
 	// Generate random MovElem *
-	sol.position = malloc(sizeof(MovElem) * nMovements);
+	sol.chain = malloc(sizeof(MovElem) * nMovements);
 	int i;
 	for(i = 0; i < nMovements; i++)
-		sol.position[i] = MovElem_random();
+		sol.chain[i] = MovElem_random();
 
 	sol.fitness = FITNESS_MIN;
 
@@ -80,7 +83,7 @@ Solution Solution_random(int hpSize){
  * Changes 'perturb' so that its ELEM1 approaches ELEM2 by a random amount, from 0 to 100%.
  * The solution 'perturb' is returned.
  *
- * The returned Solution has its idle_positions set to 0.
+ * The returned Solution has its idle_iterations set to 0.
  * The returned Solution won't have its fitness calculated.
  */
 SOLUTION_INLINE
@@ -92,8 +95,8 @@ Solution Solution_perturb_relative(Solution perturb, Solution other, int hpSize)
 	pos2 = pos1;
 
 	Solution retval = Solution_copy(perturb, hpSize);
-	unsigned char elem1 = MovElem_to_number(retval.position[pos1]);
-	unsigned char elem2 = MovElem_to_number(other.position[pos2]);
+	unsigned char elem1 = MovElem_to_number(retval.chain[pos1]);
+	unsigned char elem2 = MovElem_to_number(other.chain[pos2]);
 
 	char distance = elem2 - (char) elem1;
 
@@ -103,11 +106,53 @@ Solution Solution_perturb_relative(Solution perturb, Solution other, int hpSize)
 	// Fit the number in the discrete space [0, distance]
 	char delta = (char) round(aux);
 
-	retval.position[pos1] = MovElem_from_number(elem1 + delta);
+	retval.chain[pos1] = MovElem_from_number(elem1 + delta);
 	retval.idle_iterations = 0;
 	retval.fitness = FITNESS_MIN;
 
 	return retval;
 }
+
+/** Returns the fitness of the given solution, calculating it only if needed.
+ * \return The fitness of `sol`.
+ */
+SOLUTION_INLINE
+double Solution_fitness(Solution sol){
+	if(sol.fitness < (FITNESS_MIN + 0.1)){
+		sol.fitness = FitnessCalc_run2(sol.chain);
+	}
+	return sol.fitness;
+}
+
+/** Sets the fitness of a solution.
+ */
+SOLUTION_INLINE
+void Solution_set_fitness(Solution *sol, double fitness){
+	sol->fitness = fitness;
+}
+
+/** Returns the number of iterations through which the solution didn't improve.
+ * \return The number of idle iterations of `sol`.
+ */
+SOLUTION_INLINE
+int Solution_idle_iterations(Solution sol){
+	return sol.idle_iterations;
+}
+
+/** Increments the number of idle solutions of the given solution. */
+SOLUTION_INLINE
+void Solution_inc_idle_iterations(Solution *sol){
+	sol->idle_iterations++;
+}
+
+
+/** Returns the MovChain of the given solution.
+ * \return The MovChain of the given solution, which shouldn't be modified.
+ */
+SOLUTION_INLINE
+const MovElem *Solution_chain(Solution sol){
+	return (const MovElem *) sol.chain;
+}
+
 
 #endif

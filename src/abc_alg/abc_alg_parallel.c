@@ -11,11 +11,7 @@
 #include "elf_tree_comm.h"
 #include "abc_alg.h"
 #include "hive.h"
-
-
-/******************************************/
-/****** OTHER PROCEDURES           ********/
-/******************************************/
+#include "solution_parallel.h"
 
 struct {
 	MPI_Comm comm;
@@ -38,7 +34,7 @@ void parallel_calculate_fitness(Solution *sols, int nSols, int hpSize){
 		// Build scatter buffer content
 		for(j = 0; j < HIVE_COMM.size; j++){
 			if((i+j) < nSols){
-				memcpy(buff + j * (hpSize - 1), sols[i+j].position, hpSize - 1);
+				memcpy(buff + j * (hpSize - 1), Solution_chain(sols[i+j]), hpSize - 1);
 			} else {
 				memset(buff + j * (hpSize - 1), 0xFEFEFEFE, hpSize - 1);
 			}
@@ -48,14 +44,15 @@ void parallel_calculate_fitness(Solution *sols, int nSols, int hpSize){
 		ElfTreeComm_scatter(buff, hpSize - 1, MPI_CHAR, HIVE_COMM.comm);
 
 		// Calculate own fitness
-		sols[i].fitness = FitnessCalc_run2(buff);
+		double fit = FitnessCalc_run2(buff);
+		Solution_set_fitness(&sols[i], fit);
 
 		// Gather fitnesses
 		ElfTreeComm_gather(recvBuff, 1, MPI_DOUBLE, HIVE_COMM.comm);
 
 		// Place fitnesses into the due solutions
 		for(j = 1; j < HIVE_COMM.size && (i+j) < nSols; j++){
-			sols[i+j].fitness = recvBuff[j];
+			Solution_set_fitness(&sols[i+j], recvBuff[j]);
 
 			// For verifying correctness of fitness
 			// int good = sols[i+j].fitness == FitnessCalc_run2(buff + j * (hpSize - 1));
@@ -84,7 +81,7 @@ void parallel_forager_phase(int hpSize){
 
 	// Replace solutions in the HIVE
 	for(i = 0; i < HIVE_nSols(); i++){
-		bool replaced = HIVE_replace_solution(sols[i], i, hpSize);
+		bool replaced = HIVE_try_replace_solution(sols[i], i, hpSize);
 
 		// If wasn't a better solution
 		if(replaced == false){
@@ -116,21 +113,22 @@ void parallel_onlooker_phase(int hpSize){
 	// Find the minimum (If no negative numbers, min should be 0)
 	double min = 0;
 	for(i = 0; i < HIVE_nSols(); i++){
-		if(HIVE_solution(i)->fitness < min)
-			min = HIVE_solution(i)->fitness;
+		double fit = Solution_fitness(HIVE_solution(i));
+		if(fit < min)
+			min = fit;
 	}
 
 	// Sum the 'normalized' fitnesses
 	double sum = 0;
 	for(i = 0; i < HIVE_nSols(); i++){
-		sum += HIVE_solution(i)->fitness - min;
+		sum += Solution_fitness(HIVE_solution(i)) - min;
 	}
 
 	// For each solution, count the number of onlooker bees that should perturb it
 	//   then add perturbed solutions into the sols vector
 	nSols = 0;
 	for(i = 0; i < HIVE_nSols(); i++){
-		double norm = HIVE_solution(i)->fitness - min;
+		double norm = Solution_fitness(HIVE_solution(i)) - min;
 		double prob = norm / sum; // The probability of perturbing such solution
 
 		// Count number of onlookers that should perturb such solution
@@ -149,7 +147,7 @@ void parallel_onlooker_phase(int hpSize){
 
 	// Replace solutions where due
 	for(i = 0; i < nSols; i++){
-		bool replaced = HIVE_replace_solution(sols[i], indexes[i], hpSize);
+		bool replaced = HIVE_try_replace_solution(sols[i], indexes[i], hpSize);
 
 		// If wasn't a better solution
 		if(replaced == false){
@@ -178,9 +176,11 @@ void parallel_scout_phase(int hpSize){
 	int nSols = 0;
 
 	// Find idle solutions
-	for(i = 0; i < HIVE_nSols(); i++)
-		if(HIVE_solution(i)->idle_iterations > IDLE_LIMIT)
+	for(i = 0; i < HIVE_nSols(); i++){
+		int idle = Solution_idle_iterations(HIVE_solution(i));
+		if(idle > IDLE_LIMIT)
 			indexes[nSols++] = i;
+	}
 
 	// Generate random solutions
 	for(i = 0; i < nSols; i++)
@@ -190,10 +190,8 @@ void parallel_scout_phase(int hpSize){
 	parallel_calculate_fitness(sols, nSols, hpSize);
 
 	// Replace solutions
-	for(i = 0; i < nSols; i++){
-		HIVE_remove_solution(indexes[i]);
-		HIVE_add_solution(sols[i], indexes[i], hpSize);
-	}
+	for(i = 0; i < nSols; i++)
+		HIVE_force_replace_solution(sols[i], indexes[i]);
 }
 
 /* Procedure that the slave nodes should execute.
@@ -239,7 +237,7 @@ void ring_exchange(MPI_Comm ringComm, int hpSize){
 
 	// Get solutions to send
 	Solution randSol = HIVE_solutions()[urandom_max(HIVE_nSols())];
-	Solution bestSol = *HIVE_best_sol();
+	Solution bestSol = HIVE_best_sol();
 
 	// Create input/output buffers
 	int maxSize = 2 * hpSize + sizeof(double) * 2 + 32; // We overestimate a bit
@@ -248,10 +246,8 @@ void ring_exchange(MPI_Comm ringComm, int hpSize){
 
 	// Pack data
 	int position = 0;
-	MPI_Pack(&bestSol.fitness, 1, MPI_DOUBLE, outBuf, maxSize, &position, ringComm);
-	MPI_Pack(bestSol.position, hpSize-1, MPI_CHAR, outBuf, maxSize, &position, ringComm);
-	MPI_Pack(&randSol.fitness, 1, MPI_DOUBLE, outBuf, maxSize, &position, ringComm);
-	MPI_Pack(randSol.position, hpSize-1, MPI_CHAR, outBuf, maxSize, &position, ringComm);
+	Solution_pack(bestSol, hpSize, outBuf, maxSize, &position, ringComm);
+	Solution_pack(randSol, hpSize, outBuf, maxSize, &position, ringComm);
 
 	// Send data
 	int src, dest;
@@ -270,21 +266,15 @@ void ring_exchange(MPI_Comm ringComm, int hpSize){
 	}
 
 	// Unpack data
-	Solution sol1 = Solution_blank(hpSize);
-	Solution sol2 = Solution_blank(hpSize);
 	position = 0;
-	MPI_Unpack(inBuf, maxSize, &position, &sol1.fitness, 1, MPI_DOUBLE, ringComm);
-	MPI_Unpack(inBuf, maxSize, &position, sol1.position, hpSize-1, MPI_CHAR, ringComm);
-	MPI_Unpack(inBuf, maxSize, &position, &sol2.fitness, 1, MPI_DOUBLE, ringComm);
-	MPI_Unpack(inBuf, maxSize, &position, sol2.position, hpSize-1, MPI_CHAR, ringComm);
+	Solution sol1 = Solution_unpack(hpSize, inBuf, maxSize, &position, ringComm);
+	Solution sol2 = Solution_unpack(hpSize, inBuf, maxSize, &position, ringComm);
 
 	int ridx1 = urandom_max(HIVE_nSols());
-	HIVE_remove_solution(ridx1);
-	HIVE_add_solution(sol1, ridx1, hpSize);
+	HIVE_force_replace_solution(sol1, ridx1);
 
 	int ridx2 = urandom_max(HIVE_nSols());
-	HIVE_remove_solution(ridx2);
-	HIVE_add_solution(sol2, ridx2, hpSize);
+	HIVE_force_replace_solution(sol2, ridx2);
 }
 
 /* Gathers the best solutions among the hives in node 0.
@@ -302,7 +292,7 @@ void ring_gather(MPI_Comm ringComm, int hpSize){
 	if(commSize == 1) return;
 
 	// Get my solution
-	Solution sol = *HIVE_best_sol();
+	Solution sol = HIVE_best_sol();
 
 	// Create gather buffer
 	int maxSize = commSize * (hpSize + sizeof(double) + 32); // We overestimate a bit
@@ -310,8 +300,7 @@ void ring_gather(MPI_Comm ringComm, int hpSize){
 
 	// Pack my solution
 	int position = 0;
-	MPI_Pack(&sol.fitness, 1, MPI_DOUBLE, gatBuf, maxSize, &position, ringComm);
-	MPI_Pack(sol.position, hpSize-1, MPI_CHAR, gatBuf, maxSize, &position, ringComm);
+	Solution_pack(sol, hpSize, gatBuf, maxSize, &position, ringComm);
 
 	// Gather solutions
 	int byteCount = position;
@@ -319,14 +308,14 @@ void ring_gather(MPI_Comm ringComm, int hpSize){
 
 	// Find best solution
 	if(myRank == 0){
+		position = 0;
 		for(i = 0; i < commSize; i++){
-			double fit;
-			position = byteCount * i;
-			MPI_Unpack(gatBuf, maxSize, &position, &fit, 1, MPI_DOUBLE, ringComm);
+			sol = Solution_unpack(hpSize, gatBuf, maxSize, &position, ringComm);
 
-			if(fit > HIVE_best_sol()->fitness){
-				HIVE_best_sol()->fitness = fit;
-				MPI_Unpack(gatBuf, maxSize, &position, HIVE_best_sol()->position, hpSize-1, MPI_CHAR, ringComm);
+			if(Solution_fitness(sol) > Solution_fitness(HIVE_best_sol())){
+				HIVE_replace_best(sol);
+			} else {
+				Solution_free(sol);
 			}
 		}
 	}
@@ -334,7 +323,7 @@ void ring_gather(MPI_Comm ringComm, int hpSize){
 	free(gatBuf);
 }
 
-MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, PredResults *results){
+Solution ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, PredResults *results){
 	MPI_Init(NULL, NULL);
 	int commSize, myRank;
 	MPI_Comm_size(MPI_COMM_WORLD, &commSize);
@@ -383,10 +372,9 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 	MPI_Comm ringComm;
 	MPI_Comm_split(MPI_COMM_WORLD, color, myWorldRank, &ringComm);
 
-	MovElem *retval;
+	Solution retval;
 	if(myHiveRank != 0){
 		slave_routine(hpChain, hpSize);
-		retval = NULL;
 		results->fitness = -1;
 		results->contactsH = -1;
 		results->collisions = -1;
@@ -421,13 +409,12 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 
 		ring_gather(ringComm, hpSize);
 
-		retval = HIVE_best_sol()->position;
-		double fit = HIVE_best_sol()->fitness;
-		HIVE_nullify_best();
+		retval = HIVE_best_sol();
+		double fit = Solution_fitness(retval);
 
 		if(results && myWorldRank == 0){
 			results->fitness = fit;
-			FitnessCalc_measures(retval, &results->contactsH, &results->collisions, &results->bbGyration);
+			FitnessCalc_measures(Solution_chain(retval), &results->contactsH, &results->collisions, &results->bbGyration);
 		}
 
 		// Tell slaves to return
@@ -447,91 +434,3 @@ MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 
 	return retval;
 }
-
-/*
- * DEBUG PROCEDURES
- *
-
-void print_3d_coords(FILE *fp, int3d *bbCo, int3d *scCo, int size){
-	int i;
-	for(i = 0; i < size; i++){
-		fprintf(fp, "%d,%d,%d\n%d,%d,%d\n",
-			   bbCo[i].x, bbCo[i].y, bbCo[i].z,
-			   scCo[i].x, scCo[i].y, scCo[i].z);
-	}
-}
-
-void print_to_file(char *filename, Solution sol, HPElem *chain){
-	FILE *fp = fopen(filename, "w+");
-
-	int size = strlen(chain);
-	int3d *bbCo, *scCo;
-
-	MovChain_build_3d(sol.position, size-1, &bbCo, &scCo);
-	print_3d_coords(fp, bbCo, scCo, size);
-	fprintf(fp, "\n%s\n", chain);
-
-	free(bbCo);
-	free(scCo);
-	fclose(fp);
-}
-
-void print_chain(Solution sol, int hpSize){
-	int i;
-	for(i = 0; i < hpSize; i++){
-		MovElem_print(sol.position[i], stdout);
-		printf(" ");
-	}
-	printf("\n");
-}
-
-int main(int argc, char *argv[]){
-//	   I'd like to perform the following tasks:
-//
-//	   1) Initialize 2 solutions SOL1 and SOL2 and perturbate_relative on
-//	      both of them repeatedly. If we always choose the same positions
-//	      in SOL1 and SOL2, say position POS, if we always take SOL1's POS-th
-//	      element to near SOL2's POS-th element, I expect the solutions to
-//	      eventually become equal.
-//
-//	   2) Initialize a solution SOL1 and N other solutions, perturb_relative on them
-//	      and make the final conformation available in multiple files, so
-//	      that we can visualize whether the multiple perturbed solutions are
-//	      coherent and actually random as desired.
-//
-
-	char *hpChain = "HHHPHHH";
-	int size = 7;
-	char filename[256];
-
-	FitnessCalc_initialize(hpChain, size);
-
-//	TEST 1
-//	Inside the Solution_perturb_relative, you must make pos2 = pos1
-//	Solution sol1 = Solution_random(size);
-//	Solution sol2 = Solution_random(size);
-
-//	print_chain(sol1, size);
-//	print_chain(sol2, size);
-//	int i;
-//	for(i = 0; i < 10000; i++){
-//		sol1 = Solution_perturb_relative(sol1, sol2, size);
-//	}
-//	print_chain(sol1, size);
-
-//  TEST 2
-	Solution sol1 = Solution_random(size);
-	print_to_file("test2_baseSol.txt", sol1, hpChain);
-
-	int i;
-	for(i = 0; i < 10; i++){
-		Solution sol2 = Solution_random(size);
-		Solution res = Solution_perturb_relative(sol1, sol2, size);
-
-		sprintf(filename, "test2_sol%d.txt", i);
-		print_to_file(filename, res, hpChain);
-		printf("Fitness for %d: %lf\n", i, res.fitness);
-	}
-}
- *
- */

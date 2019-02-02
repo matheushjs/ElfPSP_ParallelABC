@@ -5,6 +5,8 @@
 #include <hpchain.h>
 #include <config.h>
 
+#include "solution.h"
+
 /** Structure for returning prediction results to the user. */
 typedef struct _PredResults {
 	double fitness;    /**< Fitness of the predicted protein */
@@ -22,6 +24,6 @@ typedef struct _PredResults {
  * If 'results' is not NULL, it receives additional values about the predicted
  *   protein (see the structure itself for what values are given).
  */
-MovElem *ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, PredResults *results);
+Solution ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, PredResults *results);
 
 #endif // ABC_ALG_H

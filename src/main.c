@@ -107,7 +107,7 @@ int main(int argc, char *argv[]){
 	clock_gettime(CLOCK_REALTIME, &wall_beg);
 
 	PredResults results;
-	MovElem * chain = ABC_predict_structure(hpChain, hpSize, nCycles, &results);
+	Solution sol = ABC_predict_structure(hpChain, hpSize, nCycles, &results);
 
 	double clk_time = (clock() - clk_beg) / (double) CLOCKS_PER_SEC;
 	clock_gettime(CLOCK_REALTIME, &wall_end);
@@ -122,10 +122,10 @@ int main(int argc, char *argv[]){
 		printf("Wall_Time: %lf\n", wall_time);
 
 		FILE *fp = fopen(outFile, "w+");
-		print_3d(chain, hpChain, hpSize, fp);
+		print_3d(Solution_chain(sol), hpChain, hpSize, fp);
 
 		fclose(fp);
-		free(chain);
+		Solution_free(sol);
 	}
 
 	if(freeChain)
