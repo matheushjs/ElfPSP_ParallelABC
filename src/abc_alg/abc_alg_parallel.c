@@ -8,7 +8,6 @@
 #include <fitness/fitness.h>
 #include <random.h>
 #include <solution/solution_mpi.h>
-#include <elf_tree_comm/elf_tree_comm.h>
 
 #include "abc_alg.h"
 #include "hive.h"
@@ -17,50 +16,6 @@ struct {
 	MPI_Comm comm;
 	int      size;
 } HIVE_COMM;
-
-/* Calculates the fitness for all solutions in the given vector, using all nodes
- *   in the MPI communicator registered in the HIVE (HIVE_COMM.comm).
- */
-static
-void parallel_calculate_fitness(Solution *sols, int nSols, int hpSize){
-	int i, j;
-
-	// Allocate buffer for MPI_Scatter / Gather
-	int buffSize = HIVE_COMM.size * (hpSize - 1);
-	MovElem *buff = malloc(buffSize);
-	double recvBuff[HIVE_COMM.size];
-
-	for(i = 0; i < nSols; i += HIVE_COMM.size){
-		// Build scatter buffer content
-		for(j = 0; j < HIVE_COMM.size; j++){
-			if((i+j) < nSols){
-				memcpy(buff + j * (hpSize - 1), Solution_chain(sols[i+j]), hpSize - 1);
-			} else {
-				memset(buff + j * (hpSize - 1), 0xFEFEFEFE, hpSize - 1);
-			}
-		}
-
-		// Scatter buffer
-		ElfTreeComm_scatter(buff, hpSize - 1, MPI_CHAR, HIVE_COMM.comm);
-
-		// Calculate own fitness
-		double fit = FitnessCalc_run2(buff);
-		Solution_set_fitness(&sols[i], fit);
-
-		// Gather fitnesses
-		ElfTreeComm_gather(recvBuff, 1, MPI_DOUBLE, HIVE_COMM.comm);
-
-		// Place fitnesses into the due solutions
-		for(j = 1; j < HIVE_COMM.size && (i+j) < nSols; j++){
-			Solution_set_fitness(&sols[i+j], recvBuff[j]);
-
-			// For verifying correctness of fitness
-			// int good = sols[i+j].fitness == FitnessCalc_run2(buff + j * (hpSize - 1));
-		}
-	}
-
-	free(buff);
-}
 
 /* Performs the forager phase of the searching cycle
  * Procedure idea:
@@ -77,7 +32,7 @@ void parallel_forager_phase(int hpSize){
 		sols[i] = HIVE_perturb_solution(i, hpSize);
 
 	// Calculate fitnesses
-	parallel_calculate_fitness(sols, HIVE_nSols(), hpSize);
+	Solution_calculate_fitness_master(sols, HIVE_nSols(), hpSize, HIVE_COMM.comm);
 
 	// Replace solutions in the HIVE
 	for(i = 0; i < HIVE_nSols(); i++)
@@ -133,7 +88,7 @@ void parallel_onlooker_phase(int hpSize){
 	}
 
 	// Calculate fitness
-	parallel_calculate_fitness(sols, nSols, hpSize);
+	Solution_calculate_fitness_master(sols, nSols, hpSize, HIVE_COMM.comm);
 
 	// Replace solutions where due
 	for(i = 0; i < nSols; i++)
@@ -167,40 +122,11 @@ void parallel_scout_phase(int hpSize){
 		sols[i] = Solution_random(hpSize);
 
 	// Calculate fitness
-	parallel_calculate_fitness(sols, nSols, hpSize);
+	Solution_calculate_fitness_master(sols, nSols, hpSize, HIVE_COMM.comm);
 
 	// Replace solutions
 	for(i = 0; i < nSols; i++)
 		HIVE_force_replace_solution(sols[i], indexes[i]);
-}
-
-/* Procedure that the slave nodes should execute.
- * Consists of waiting for MovChains, calculating its fitness, and sending the fitness back to node 0.
- * The fitness is sent back with the same MPI_TAG that was received with the MovChain.
- * The slave will return once the first element of the MovChain received is equal 0xFF.
- */
-static
-void slave_routine(const HPElem *hpChain, int hpSize){
-	// Create scatter/gather buffers
-	int buffSize = HIVE_COMM.size * (hpSize - 1);
-	MovElem *buff = malloc(buffSize);
-	double sendBuff[HIVE_COMM.size];
-
-	while(true){
-		ElfTreeComm_scatter(buff, hpSize-1, MPI_CHAR, HIVE_COMM.comm);
-		if(0xFF == buff[0]){
-			free(buff);
-			return;
-		}
-
-		if(0xFE == buff[0]){
-			sendBuff[0] = 0;
-		} else {
-			sendBuff[0] = FitnessCalc_run2(buff);
-		}
-
-		ElfTreeComm_gather(sendBuff, 1, MPI_DOUBLE, HIVE_COMM.comm);
-	}
 }
 
 /* Exchanges solutions among the hives.
@@ -354,7 +280,7 @@ Solution ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 
 	Solution retval;
 	if(myHiveRank != 0){
-		slave_routine(hpChain, hpSize);
+		Solution_calculate_fitness_slave(hpChain, hpSize, HIVE_COMM.comm);
 		results->fitness = -1;
 		results->contactsH = -1;
 		results->collisions = -1;
@@ -391,13 +317,8 @@ Solution ABC_predict_structure(const HPElem * hpChain, int hpSize, int nCycles, 
 			FitnessCalc_measures(Solution_chain(retval), &results->contactsH, &results->collisions, &results->bbGyration);
 		}
 
-		// Tell slaves to return
-		// Allocate buffer for MPI_Scatter / Gather
-		int buffSize = HIVE_COMM.size * (hpSize - 1);
-		void *buff = malloc(buffSize);
-		memset(buff, 0xFFFFFFFF, buffSize);
-		ElfTreeComm_scatter(buff, hpSize - 1, MPI_CHAR, HIVE_COMM.comm);
-		free(buff);
+		// Tell slaves to stop
+		Solution_calculate_fitness_master_kill_slaves(hpSize, HIVE_COMM.comm);
 	}
 
 	MPI_Barrier(hiveComm);
