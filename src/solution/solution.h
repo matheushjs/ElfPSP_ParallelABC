@@ -17,12 +17,10 @@
 	#define SOLUTION_INLINE extern inline
 #endif
 
+#include "solution_structure_private.h"
+
 /** Encapsulates a solution, which is a protein conformation that is developed by a bee. */
-typedef struct Solution_ {
-	MovElem *chain;       /**< Position of such solution */
-	double fitness;       /**< Fitness of such solution. Calculated lazily. */
-	int idle_iterations;  /**< Number of iterations through which the food didn't improve */
-} Solution;
+typedef struct Solution_ Solution;
 
 /** Returns a Solution whose fields are all uninitialized, but with due memory allocated. */
 SOLUTION_INLINE

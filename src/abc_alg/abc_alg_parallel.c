@@ -7,11 +7,11 @@
 #include <hpchain.h>
 #include <fitness/fitness.h>
 #include <random.h>
+#include <solution/solution_mpi.h>
 
 #include "elf_tree_comm.h"
 #include "abc_alg.h"
 #include "hive.h"
-#include "solution_parallel.h"
 
 struct {
 	MPI_Comm comm;

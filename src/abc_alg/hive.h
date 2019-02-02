@@ -1,7 +1,7 @@
 #ifndef _HIVE_H_
 #define _HIVE_H_
 
-#include "solution.h"
+#include <solution/solution.h>
 
 /** Initializes the global HIVE object. */
 void HIVE_initialize();

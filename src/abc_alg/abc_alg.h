@@ -5,7 +5,7 @@
 #include <hpchain.h>
 #include <config.h>
 
-#include "solution.h"
+#include <solution/solution.h>
 
 /** Structure for returning prediction results to the user. */
 typedef struct _PredResults {

@@ -10,9 +10,10 @@
 #include <config.h>
 #include <string.h>
 
+#include <solution/solution.h>
+
 #include "abc_alg.h"
 #include "hive.h"
-#include "solution.h"
 
 /** Encapsulates a hive that develops a number of solutions using a number of bees. */
 struct _HIVE {
