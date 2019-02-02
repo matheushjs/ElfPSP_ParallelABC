@@ -8,7 +8,7 @@
 #include <solution/solution.h>
 
 /** Structure for returning prediction results to the user. */
-typedef struct _PredResults {
+typedef struct PredResults_ {
 	double fitness;    /**< Fitness of the predicted protein */
 	int contactsH;     /**< Number of H contacts */
 	int collisions;    /**< Number of collisions among beads */

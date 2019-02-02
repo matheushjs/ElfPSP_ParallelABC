@@ -15,7 +15,7 @@
 /* So that memory allocated can be reused throughout calls to
  *   fitness calculation functions, we have this structure.
  */
-typedef struct _FitnessCalc {
+typedef struct FitnessCalc_ {
 	const HPElem * hpChain;
 	int hpSize;
 	void *space3d;

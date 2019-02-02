@@ -16,7 +16,7 @@
 #include "hive.h"
 
 /** Encapsulates a hive that develops a number of solutions using a number of bees. */
-struct _HIVE {
+struct HIVE_ {
 	Solution *sols; /**< Set of solutions currently held by the forager bees */
 	int nSols;      /**< Number of such solutions */
 	int cycle;      /**< Keeps track of what cycle we are running */
@@ -25,7 +25,7 @@ struct _HIVE {
 };
 
 /** Our global HIVE */
-struct _HIVE HIVE;
+struct HIVE_ HIVE;
 
 /******************************************/
 /****** HIVE PROCEDURES            ********/

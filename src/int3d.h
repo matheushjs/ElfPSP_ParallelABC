@@ -12,7 +12,7 @@
 #endif
 
 /** Type for representing a tridimensional coordinate. */
-typedef struct _int3d {
+typedef struct int3d_ {
 	int x; /**< Coordinate x. */
 	int y; /**< Coordinate y. */
 	int z; /**< Coordinate z. */
