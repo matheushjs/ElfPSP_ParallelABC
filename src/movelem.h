@@ -1,6 +1,12 @@
 #ifndef _MOVELEM_H_
 #define _MOVELEM_H_
 
+/** \file movelem.h Routines for manipulating MovElem units, which represent relative movements within a protein.
+ *
+ * We decided to encode 2 relative movements in a each byte (char), each occupying 4 bits.
+ * The most significant bits hold a relative movement for the backbone chain.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "random.h"

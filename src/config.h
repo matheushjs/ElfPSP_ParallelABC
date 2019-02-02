@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+/** \file config.h Routines for manipulating the configuration YML file. */
+
 /** @{ */
 /** Check configuration.yml for documentation. */
 extern char *HP_CHAIN;

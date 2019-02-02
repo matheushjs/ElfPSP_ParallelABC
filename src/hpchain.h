@@ -1,6 +1,8 @@
 #ifndef HPCHAIN_H
 #define HPCHAIN_H
 
+/** \file hpchain.h Routines for handling HP chains. */
+
 #include <stdio.h>
 
 /** HPChain is how we call an array of HPElem. */

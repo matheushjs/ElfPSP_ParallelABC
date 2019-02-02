@@ -1,17 +1,22 @@
 #ifndef _CUDA_HEADER_
 #define _CUDA_HEADER_
 
+/** \file CUDA_header.h CUDA routines for calculating collisions and contacts among a beads. */
+
+/** A "key" that can be used to fetch results of non-blocking computations sent to the GPU. */
 struct CollisionCountPromise {  // Vectors of # of collisions
 	int *d_toReduce;
 	int *d_reduced;
 };
 
+/** Holds a triple of floats. */
 typedef struct {
 	float x;
 	float y;
 	float z;
 } ElfFloat3d;
 
+/** Holds a triple of integer numbers. */
 typedef struct {
 	int x;
 	int y;

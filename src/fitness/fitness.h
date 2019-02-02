@@ -1,6 +1,8 @@
 #ifndef FITNESS_H
 #define FITNESS_H
 
+/** \file fitness.h Public header file with routines for calculating the fitness of a protein represented as a chain of relative movements + hp chain. */
+
 #include <int3d.h>
 #include <hpchain.h>
 #include <movchain.h>

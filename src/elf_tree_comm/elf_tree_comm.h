@@ -1,7 +1,9 @@
 #ifndef _ELF_TREE_COMM_H
 #define _ELF_TREE_COMM_H
 
-/* ELF TREE COMMUNICATION FUNCTIONS
+/** \file elf_tree_comm.h Efficient scatter/gather routines that use a tree-like communication pattern.
+ *
+ * ELF TREE COMMUNICATION FUNCTIONS
  *
  * The functions below try to make efficient use of the interconnection
  *   network of your system, by scattering/gathering data in a tree-like

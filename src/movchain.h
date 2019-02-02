@@ -1,6 +1,8 @@
 #ifndef MOVCHAIN_H
 #define MOVCHAIN_H
 
+/** \file movchain.h Routines for managing chains of MovElem units. */
+
 #include <stdio.h>
 #include "movelem.h"
 #include "int3d.h"

@@ -1,6 +1,8 @@
 #ifndef ABC_ALG_H
 #define ABC_ALG_H
 
+/** \file abc_alg.h Public header file with routine for performing prediction of a protein structure. */
+
 #include <movchain.h>
 #include <hpchain.h>
 #include <config.h>

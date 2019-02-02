@@ -1,6 +1,8 @@
 #ifndef INT3D_H
 #define INT3D_H
 
+/** \file int3d.h Routines for mathematical manipulation of vectors and points in the integer space. */
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

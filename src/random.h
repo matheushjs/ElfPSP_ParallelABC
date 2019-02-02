@@ -1,6 +1,8 @@
 #ifndef RANDOM_H
 #define RANDOM_H
 
+/** \file random.h Routines for random number generation. */
+
 #undef MT_GENERATE_CODE_IN_HEADER
 #define MT_GENERATE_CODE_IN_HEADER 0
 #include "mtwist/mtwist.h"

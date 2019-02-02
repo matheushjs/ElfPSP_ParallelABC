@@ -1,6 +1,8 @@
 #ifndef SOLUTION_H_
 #define SOLUTION_H_
 
+/** \file solution.h Routines for manipulating Solution objects, such as creation, randomization, perturbation etc. */
+
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -19,7 +21,6 @@
 
 #include "solution_structure_private.h"
 
-/** Encapsulates a solution, which is a protein conformation that is developed by a bee. */
 typedef struct Solution_ Solution;
 
 /** Returns a Solution whose fields are all uninitialized, but with due memory allocated. */

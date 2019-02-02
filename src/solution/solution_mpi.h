@@ -1,6 +1,8 @@
 #ifndef SOLUTION_PARALLEL_H
 #define SOLUTION_PARALLEL_H
 
+/** \file solution_mpi.h Routines for transmitting Solution objects to and from other nodes within an MPI environment. */
+
 #include <mpi/mpi.h>
 #include <elf_tree_comm/elf_tree_comm.h>
 #include "solution.h"

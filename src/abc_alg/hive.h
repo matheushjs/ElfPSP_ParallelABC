@@ -1,6 +1,8 @@
 #ifndef _HIVE_H_
 #define _HIVE_H_
 
+/** \file hive.h Routines for manipulating the bee hive global object. */
+
 #include <solution/solution.h>
 
 /** Initializes the global HIVE object. */

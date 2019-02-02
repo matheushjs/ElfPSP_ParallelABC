@@ -1,6 +1,8 @@
 #ifndef _GYRATION_H_
 #define _GYRATION_H_
 
+/** \file gyration.h Routines for calculating gyration of a vector of beads. */
+
 #include <int3d.h>
 #include "fitness_private.h"
 
