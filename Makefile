@@ -69,7 +69,7 @@ clean:
 clean_all: clean
 	rm -vf mpi_lin mpi_quad mpi_threads mpi_lin_threads mpi_cuda seq_lin seq_quad seq_threads seq_lin_threads seq_cuda
 
-docs:
+dox:
 	doxygen Doxyfile
 
 
