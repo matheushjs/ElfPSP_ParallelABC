@@ -5,6 +5,7 @@ Elf Protein Structure Prediction - Parallel ABC Algorithm
 
 Implementations of a Protein Structure Prediction (PSP) program, using an Artificial Bee Colony optimization algorithm.
 
+**Internal documentation [here](https://matheushjs.github.io/ElfPSP_ParallelABC/files.html).**
 
 Index
 ---
